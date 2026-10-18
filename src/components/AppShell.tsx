@@ -111,17 +111,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ))}
       </div>
 
-      {/* white bottom bar with the purple "+" in the middle */}
-      <nav className="paper fixed bottom-0 inset-x-0 z-30 bg-surface border-t border-line pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-xl mx-auto h-16 px-2 grid grid-cols-5 items-center">
+      {/* white bottom bar: its top edge dips into a smooth notch that cradles the raised purple "+" */}
+      <nav
+        className="paper fixed bottom-0 inset-x-0 z-30 pb-[env(safe-area-inset-bottom)]"
+        style={{ filter: "drop-shadow(0 -3px 10px rgba(0,0,0,0.10))" }}
+      >
+        <div className="absolute inset-0 flex flex-col" aria-hidden>
+          <div className="h-16 flex">
+            <div className="flex-1 bg-surface" />
+            <svg viewBox="0 0 120 64" className="w-[120px] h-16 shrink-0 block" style={{ fill: "rgb(var(--surface))" }}>
+              <path d="M0,0 H14 C23,0 26,4 28,10 A34,34 0 0 0 92,10 C94,4 97,0 106,0 H120 V64 H0 Z" />
+            </svg>
+            <div className="flex-1 bg-surface" />
+          </div>
+          <div className="flex-1 bg-surface" />
+        </div>
+
+        <div className="relative max-w-xl mx-auto h-16 px-2 grid grid-cols-5 items-center">
           {[TABS[0], TABS[1]].map((t) => (
             <Tab key={t.href} {...t} active={path === t.href} />
           ))}
-          <div className="grid place-items-center">
+          <div className="relative h-full">
             <button
               onClick={() => setAdd((v) => !v)}
               aria-label="הוספה"
-              className={`w-12 h-12 -mt-6 grid place-items-center rounded-full bg-fab text-white shadow-[0_8px_20px_-6px_rgba(90,86,230,0.7)] transition-transform ${add ? "rotate-45" : ""}`}
+              className={`absolute left-1/2 -translate-x-1/2 -top-[34px] w-[54px] h-[54px] grid place-items-center rounded-full bg-fab text-white shadow-[0_10px_22px_-6px_rgba(90,86,230,0.65)] transition-transform active:scale-95 ${add ? "rotate-45" : ""}`}
             >
               <Icon name="plus" className="w-6 h-6" />
             </button>
