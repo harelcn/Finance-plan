@@ -99,7 +99,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* "+" quick-add menu */}
       {add && <div className="fixed inset-0 z-30" onClick={() => setAdd(false)} />}
       <div
-        className={`paper fixed z-40 bottom-24 left-1/2 -translate-x-1/2 w-56 bg-surface rounded-2xl p-2 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.4)] transition-all duration-200 ${add ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}
+        className={`paper fixed z-40 bottom-[calc(100px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-56 bg-surface rounded-2xl p-2 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.4)] transition-all duration-200 ${add ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}
       >
         {ADD.map((a) => (
           <Link key={a.label} href={a.href} tabIndex={add ? 0 : -1} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-subtle text-sm">
