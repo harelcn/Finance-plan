@@ -2,15 +2,15 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { addPlanned, addStanding, addTarget, removeRow, type ActionState } from "@/app/actions";
 
-const input = "bg-black border border-zinc-700 rounded-lg px-3 py-2 text-sm w-full min-w-0";
-const label = "text-xs text-zinc-500 space-y-1 block";
+const input = "bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm w-full min-w-0 focus:outline-none focus:border-white/40";
+const label = "text-xs text-zinc-500 space-y-1.5 block";
 
 function Submit({ pending, children }: { pending: boolean; children: React.ReactNode }) {
   return (
     <button
       type="submit"
       disabled={pending}
-      className="bg-white text-black rounded-lg px-4 py-2 text-sm disabled:opacity-50"
+      className="w-full bg-white text-black rounded-xl px-4 py-3 text-sm font-medium disabled:opacity-50 active:scale-[0.99] transition"
     >
       {pending ? "שומר…" : children}
     </button>
@@ -33,9 +33,9 @@ export function TargetForm({ today }: { today: string }) {
   const [state, action, pending] = useActionState(addTarget, {});
   const ref = useResetOnSuccess(state);
   return (
-    <form ref={ref} action={action} className="space-y-3 border-t border-zinc-800 pt-4">
+    <form ref={ref} action={action} className="space-y-4">
       <p className="text-xs text-zinc-500">יעד חדש מחליף את הקודם מהחודש שבו הוא מתחיל</p>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <label className={label}>
           <span>סוג</span>
           <select name="kind" className={input}>
@@ -63,8 +63,8 @@ export function PlannedForm({ today }: { today: string }) {
   const ref = useResetOnSuccess(state);
   const [mode, setMode] = useState<"once" | "installments">("once");
   return (
-    <form ref={ref} action={action} className="space-y-3 border-t border-zinc-800 pt-4">
-      <div className="grid grid-cols-2 gap-2">
+    <form ref={ref} action={action} className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
         <label className={label}>
           <span>שם</span>
           <input name="name" className={input} placeholder="חתונה" required />
@@ -106,8 +106,8 @@ export function StandingForm({ today }: { today: string }) {
   const [state, action, pending] = useActionState(addStanding, {});
   const ref = useResetOnSuccess(state);
   return (
-    <form ref={ref} action={action} className="space-y-3 border-t border-zinc-800 pt-4">
-      <div className="grid grid-cols-2 gap-2">
+    <form ref={ref} action={action} className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
         <label className={label}>
           <span>שם</span>
           <input name="name" className={input} placeholder="ביטוח רכב" required />
@@ -153,5 +153,26 @@ export function DeleteButton({ id }: { id: string }) {
         ביטול
       </button>
     </span>
+  );
+}
+
+/** Collapsed "+ הוספה" button that expands into its form. */
+export function AddSheet({ label, children }: { label: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return open ? (
+    <div className="bg-zinc-900/60 border border-white/5 rounded-2xl p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-[13px] font-medium text-zinc-300">{label}</h2>
+        <button onClick={() => setOpen(false)} className="text-xs text-zinc-500 hover:text-white">סגור</button>
+      </div>
+      {children}
+    </div>
+  ) : (
+    <button
+      onClick={() => setOpen(true)}
+      className="w-full flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 py-4 text-sm text-zinc-300 hover:bg-white/5 active:scale-[0.99] transition"
+    >
+      <span className="text-lg leading-none">+</span> {label}
+    </button>
   );
 }

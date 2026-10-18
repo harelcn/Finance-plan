@@ -4,14 +4,15 @@
 
 * {
   font-family: 'Heebo', sans-serif;
-  font-weight: 700;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background: #000;
   color: #fff;
   direction: rtl;
+  font-weight: 400;
 }
 
 input, select, textarea {
@@ -24,6 +25,12 @@ input, select, textarea {
   font-variant-numeric: tabular-nums;
 }
 
+.hero {
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.12), transparent 55%),
+    linear-gradient(160deg, #27272a 0%, #0c0c0e 70%);
+}
+
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
 ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }

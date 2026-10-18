@@ -4,17 +4,31 @@ import type { BalanceBreakdown, MonthlyActuals } from "./types";
 
 export const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
+/** Retries transient network / rate-limit failures with a short backoff. */
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  for (let i = 1; ; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (i >= attempts) throw e;
+      await new Promise((r) => setTimeout(r, 400 * i));
+    }
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function queryAll(dbId: string, filter?: any): Promise<any[]> {
   const results = [];
   let cursor: string | undefined;
   do {
-    const res = await notion.databases.query({
-      database_id: dbId,
-      filter,
-      start_cursor: cursor,
-      page_size: 100,
-    });
+    const res = await withRetry(() =>
+      notion.databases.query({
+        database_id: dbId,
+        filter,
+        start_cursor: cursor,
+        page_size: 100,
+      }),
+    );
     results.push(...res.results);
     cursor = res.next_cursor ?? undefined;
   } while (cursor);

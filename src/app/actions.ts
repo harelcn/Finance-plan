@@ -27,7 +27,7 @@ function readName(fd: FormData): string | null {
 async function run(fn: () => Promise<void>): Promise<ActionState> {
   try {
     await fn();
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { ok: Date.now() };
   } catch (e) {
     console.error(e);
