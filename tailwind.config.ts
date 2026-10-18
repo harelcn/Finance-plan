@@ -22,6 +22,7 @@ export default {
         onbrand: token("onbrand"),
         chip: token("chip"),
         danger: token("danger"),
+        fab: token("fab"),
       },
     },
   },

@@ -2,23 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Discount-style palette: white surfaces, brand green, near-black text. RGB channels for Tailwind alpha. */
+/*
+  Discount-app look: the whole app sits on brand green, sections are stacked bands that get
+  darker going down, text is white. White "paper" cards (alerts, forms, drawer, bottom bar)
+  flip the tokens back to dark-on-white. Tokens are RGB channels for Tailwind alpha.
+*/
 :root {
-  --page: 243 246 244;
-  --surface: 255 255 255;
-  --subtle: 237 243 239;
-  --line: 225 231 227;
-  --ink: 16 24 20;
-  --muted: 98 110 104;
-  --faint: 158 168 163;
-  --brand: 0 118 58;
-  --onbrand: 255 255 255;
+  --page: 98 176 79;
+  --surface: 88 166 70;
+  --subtle: 120 190 102;
+  --line: 132 196 116;
+  --ink: 255 255 255;
+  --muted: 226 242 220;
+  --faint: 186 222 176;
+  --brand: 255 255 255;
+  --onbrand: 62 150 52;
   --chip: 255 255 255;
-  --danger: 190 40 40;
+  --danger: 255 205 196;
+  --fab: 90 86 230;
+}
+
+.paper {
+  --surface: 255 255 255;
+  --subtle: 241 245 242;
+  --line: 228 233 229;
+  --ink: 24 32 27;
+  --muted: 98 108 101;
+  --faint: 156 165 159;
+  --brand: 62 150 52;
+  --onbrand: 255 255 255;
+  --danger: 200 40 40;
+  color: rgb(var(--ink));
 }
 
 * {
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Rubik', 'Heebo', sans-serif;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
@@ -30,9 +48,7 @@ body {
   font-weight: 400;
 }
 
-input, select, textarea {
-  color-scheme: light;
-}
+input, select, textarea { color-scheme: light; }
 
 .num {
   direction: ltr;
@@ -40,23 +56,18 @@ input, select, textarea {
   font-variant-numeric: tabular-nums;
 }
 
-/* Green balance card: tokens flip so the same components read white-on-green. */
-.hero {
-  --ink: 255 255 255;
-  --muted: 208 234 219;
-  --faint: 160 210 182;
-  --line: 38 143 90;
-  --subtle: 20 132 76;
-  --brand: 255 255 255;
-  --onbrand: 0 118 58;
-  color: rgb(var(--ink));
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
-    linear-gradient(155deg, #00863f 0%, #006a34 100%);
-  box-shadow: 0 10px 30px -12px rgba(0, 118, 58, 0.45);
-}
+/* Stacked bands: each section a shade darker, drifting toward teal like the Discount home. */
+.band { background: rgb(88 166 70); }
+.band:nth-of-type(2) { background: rgb(76 157 66); }
+.band:nth-of-type(3) { background: rgb(64 148 64); }
+.band:nth-of-type(4) { background: rgb(52 139 66); }
+.band:nth-of-type(5) { background: rgb(42 131 72); }
+.band:nth-of-type(n + 6) { background: rgb(34 122 76); }
+
+/* Balance / summary blocks sit straight on the green, like "יתרת עו״ש". */
+.hero { background: transparent; }
 .hero input { color-scheme: dark; }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgb(var(--line)); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 0.35); border-radius: 2px; }

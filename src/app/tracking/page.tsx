@@ -32,12 +32,12 @@ export default async function TrackingPage() {
       <PageTitle title="יעד מול ביצוע" />
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="hero rounded-2xl border border-line p-4 space-y-1">
+        <div className="band rounded-3xl p-4 space-y-1">
           <p className="text-[11px] text-muted">הכנסות מול היעד</p>
           <Amount value={cumIncome} size="text-2xl" />
           <p className="text-[11px] text-muted">{cumIncome >= 0 ? "מעל היעד" : "מתחת ליעד"}</p>
         </div>
-        <div className="hero rounded-2xl border border-line p-4 space-y-1">
+        <div className="band rounded-3xl p-4 space-y-1">
           <p className="text-[11px] text-muted">הוצאות מול היעד</p>
           <Amount value={cumExpense} size="text-2xl" />
           <p className="text-[11px] text-muted">{cumExpense >= 0 ? "מתחת ליעד" : "חרגת מהיעד"}</p>

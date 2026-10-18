@@ -159,7 +159,7 @@ export function DeleteButton({ id }: { id: string }) {
 export function AddSheet({ label, children }: { label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return open ? (
-    <div className="bg-surface border border-line rounded-2xl p-5 space-y-4">
+    <div className="paper bg-surface rounded-3xl p-5 space-y-4 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.35)]">
       <div className="flex items-center justify-between">
         <h2 className="text-[13px] font-medium text-ink">{label}</h2>
         <button onClick={() => setOpen(false)} className="text-xs text-muted hover:text-ink">סגור</button>
@@ -169,7 +169,7 @@ export function AddSheet({ label, children }: { label: string; children: React.R
   ) : (
     <button
       onClick={() => setOpen(true)}
-      className="w-full flex items-center justify-center gap-2 rounded-2xl border border-dashed border-line py-4 text-sm text-ink hover:bg-subtle active:scale-[0.99] transition"
+      className="w-full flex items-center justify-center gap-2 rounded-full bg-brand text-onbrand py-3.5 text-sm font-medium shadow-[0_6px_16px_-8px_rgba(0,0,0,0.35)] active:scale-[0.99] transition"
     >
       <span className="text-lg leading-none">+</span> {label}
     </button>

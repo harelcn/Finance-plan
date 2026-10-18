@@ -26,7 +26,7 @@ export default async function Home() {
   return (
     <>
       {/* ───── Balance hero ───── */}
-      <section className="hero rounded-3xl border border-line p-6 space-y-6">
+      <section className="hero rounded-3xl p-6 space-y-6">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted">יתרה כולל סגירות</span>
           <span className="text-[11px] text-muted">{dateLabel(today)}</span>
@@ -75,7 +75,7 @@ export default async function Home() {
 
       {/* ───── Overdue: date passed, no linked expense yet ───── */}
       {overdue.length > 0 && (
-        <Card title="טרם יצאו">
+        <Card title="טרם יצאו" paper>
           <RowList>
             {overdue.map((e, i) => (
               <Row

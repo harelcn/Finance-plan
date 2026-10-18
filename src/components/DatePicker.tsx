@@ -19,7 +19,7 @@ export function DatePicker({ input }: { input: ForecastInput }) {
   const change = r.balance - input.currentBalance;
 
   return (
-    <section className="hero rounded-3xl border border-line p-6 space-y-5">
+    <section className="hero rounded-3xl p-6 space-y-5">
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-muted">יתרה צפויה ב־</span>
         <input
