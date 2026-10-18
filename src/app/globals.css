@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Discount-style palette: white surfaces, brand green, near-black text. RGB channels for Tailwind alpha. */
+:root {
+  --page: 243 246 244;
+  --surface: 255 255 255;
+  --subtle: 237 243 239;
+  --line: 225 231 227;
+  --ink: 16 24 20;
+  --muted: 98 110 104;
+  --faint: 158 168 163;
+  --brand: 0 118 58;
+  --onbrand: 255 255 255;
+  --chip: 255 255 255;
+  --danger: 190 40 40;
+}
+
 * {
   font-family: 'Heebo', sans-serif;
   box-sizing: border-box;
@@ -9,14 +24,14 @@
 }
 
 body {
-  background: #000;
-  color: #fff;
+  background: rgb(var(--page));
+  color: rgb(var(--ink));
   direction: rtl;
   font-weight: 400;
 }
 
 input, select, textarea {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .num {
@@ -25,12 +40,23 @@ input, select, textarea {
   font-variant-numeric: tabular-nums;
 }
 
+/* Green balance card: tokens flip so the same components read white-on-green. */
 .hero {
+  --ink: 255 255 255;
+  --muted: 208 234 219;
+  --faint: 160 210 182;
+  --line: 38 143 90;
+  --subtle: 20 132 76;
+  --brand: 255 255 255;
+  --onbrand: 0 118 58;
+  color: rgb(var(--ink));
   background:
-    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.12), transparent 55%),
-    linear-gradient(160deg, #27272a 0%, #0c0c0e 70%);
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
+    linear-gradient(155deg, #00863f 0%, #006a34 100%);
+  box-shadow: 0 10px 30px -12px rgba(0, 118, 58, 0.45);
 }
+.hero input { color-scheme: dark; }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(var(--line)); border-radius: 2px; }

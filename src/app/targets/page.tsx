@@ -14,15 +14,15 @@ export default async function TargetsPage() {
 
   return (
     <>
-      <PageTitle title="יעדים חודשיים" subtitle="הכנסה = יעד הכנסה (לא רווח) · הוצאה = שוטף בלבד, הוראות קבע והוצאות מתוכננות מתווספות לבד" />
+      <PageTitle title="יעדים חודשיים" />
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">
-          <p className="text-[11px] text-zinc-400">הכנסה חודשית</p>
+        <div className="hero rounded-2xl border border-line p-4 space-y-1">
+          <p className="text-[11px] text-muted">הכנסה חודשית</p>
           <Amount value={income} size="text-2xl" />
         </div>
-        <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">
-          <p className="text-[11px] text-zinc-400">הוצאה חודשית</p>
+        <div className="hero rounded-2xl border border-line p-4 space-y-1">
+          <p className="text-[11px] text-muted">הוצאה חודשית</p>
           <Amount value={expense} size="text-2xl" />
         </div>
       </div>

@@ -31,7 +31,7 @@ export default async function PlannedPage() {
 
   return (
     <>
-      <PageTitle title="הוצאות מתוכננות" subtitle="כשמשהו יוצא — רשום בהוצאות ב-Notion ובחר ב״שיוך להוצאה מתוכננת״" />
+      <PageTitle title="הוצאות מתוכננות" />
 
       <AddSheet label="הוצאה חדשה">
         <PlannedForm today={today} />

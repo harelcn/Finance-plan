@@ -11,10 +11,10 @@ export const dynamic = "force-dynamic";
 function Actual({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between items-baseline text-xs">
-      <span className="text-zinc-400">{label}</span>
+      <span className="text-muted">{label}</span>
       <span>
-        <span className="num text-zinc-200">{fmt(value)}</span>
-        <span className="text-zinc-600"> · לא הוגדר יעד</span>
+        <span className="num text-ink">{fmt(value)}</span>
+        <span className="text-faint"> · לא הוגדר יעד</span>
       </span>
     </div>
   );
@@ -25,28 +25,24 @@ export default async function TrackingPage() {
   const rows = tracking(input, TRACKING_START).reverse();
   const cumIncome = rows[0]?.cumulativeIncomeDelta ?? 0;
   const cumExpense = rows[0]?.cumulativeExpenseDelta ?? 0;
-  const firstTargeted = [...rows].reverse().find((r) => r.hasIncomeTarget || r.hasExpenseTarget);
   const missing = rows.some((r) => !r.hasIncomeTarget || !r.hasExpenseTarget);
 
   return (
     <>
-      <PageTitle title="יעד מול ביצוע" subtitle="נתונים מ-Notion · הכנסות מול יעד הכנסה · הוצאות מול יעד הוצאה" />
+      <PageTitle title="יעד מול ביצוע" />
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">
-          <p className="text-[11px] text-zinc-400">הכנסות מול היעד</p>
+        <div className="hero rounded-2xl border border-line p-4 space-y-1">
+          <p className="text-[11px] text-muted">הכנסות מול היעד</p>
           <Amount value={cumIncome} size="text-2xl" />
-          <p className="text-[11px] text-zinc-500">{cumIncome >= 0 ? "מעל היעד" : "מתחת ליעד"}</p>
+          <p className="text-[11px] text-muted">{cumIncome >= 0 ? "מעל היעד" : "מתחת ליעד"}</p>
         </div>
-        <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">
-          <p className="text-[11px] text-zinc-400">הוצאות מול היעד</p>
+        <div className="hero rounded-2xl border border-line p-4 space-y-1">
+          <p className="text-[11px] text-muted">הוצאות מול היעד</p>
           <Amount value={cumExpense} size="text-2xl" />
-          <p className="text-[11px] text-zinc-500">{cumExpense >= 0 ? "מתחת ליעד" : "חרגת מהיעד"}</p>
+          <p className="text-[11px] text-muted">{cumExpense >= 0 ? "מתחת ליעד" : "חרגת מהיעד"}</p>
         </div>
       </div>
-      {firstTargeted && (
-        <p className="text-[11px] text-zinc-500 -mt-2">הפער נספר רק בחודשים שיש להם יעד (מ-{monthLabel(firstTargeted.month)})</p>
-      )}
 
       {missing && (
         <AddSheet label="הגדר יעד גם לחודשים קודמים">
@@ -59,7 +55,7 @@ export default async function TrackingPage() {
           {t.hasIncomeTarget ? (
             <div className="space-y-1.5">
               <TargetBar label="הכנסות (סגירות)" actual={t.closings} target={t.incomeTarget} />
-              <p className={`text-[11px] ${t.incomeDelta >= 0 ? "text-white" : "text-zinc-500"}`}>
+              <p className={`text-[11px] ${t.incomeDelta >= 0 ? "text-brand" : "text-danger"}`}>
                 <span className="num">{fmt(Math.abs(t.incomeDelta))}</span> {t.incomeDelta >= 0 ? "מעל יעד ההכנסה" : "מתחת ליעד ההכנסה"}
               </p>
             </div>
@@ -69,7 +65,7 @@ export default async function TrackingPage() {
           {t.hasExpenseTarget ? (
             <div className="space-y-1.5">
               <TargetBar label="הוצאות" actual={t.expenses} target={t.expenseTarget} invert />
-              <p className={`text-[11px] ${t.expenseDelta >= 0 ? "text-white" : "text-zinc-500"}`}>
+              <p className={`text-[11px] ${t.expenseDelta >= 0 ? "text-brand" : "text-danger"}`}>
                 <span className="num">{fmt(Math.abs(t.expenseDelta))}</span> {t.expenseDelta >= 0 ? "מתחת ליעד ההוצאה" : "מעל יעד ההוצאה"}
               </p>
             </div>

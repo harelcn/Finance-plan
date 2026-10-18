@@ -22,22 +22,22 @@ export function ForecastChart({ rows, start, compact }: { rows: ForecastRow[]; s
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label="תחזית יתרה">
         <defs>
           <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            <stop offset="0%" stopColor="#00763A" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#00763A" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {min < 0 && <line x1={PAD} x2={W - PAD} y1={zeroY} y2={zeroY} stroke="#3f3f46" strokeDasharray="4 4" />}
+        {min < 0 && <line x1={PAD} x2={W - PAD} y1={zeroY} y2={zeroY} stroke="#c9d2cd" strokeDasharray="4 4" />}
         <path d={`${path} L${x(last)},${H - PAD} L${x(0)},${H - PAD} Z`} fill="url(#fill)" />
-        <path d={path} fill="none" stroke="#fff" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={path} fill="none" stroke="#00763A" strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
         {!compact &&
-          values.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={2.5} fill={v < 0 ? "#a1a1aa" : "#fff"} />)}
-        <circle cx={x(last)} cy={y(values[last])} r={4.5} fill="#fff" />
+          values.map((v, i) => <circle key={i} cx={x(i)} cy={y(v)} r={2.5} fill={v < 0 ? "#be2828" : "#00763A"} />)}
+        <circle cx={x(last)} cy={y(values[last])} r={4.5} fill="#00763A" stroke="#fff" strokeWidth="2" />
       </svg>
       {!compact && (
-        <div className="flex justify-between text-xs text-zinc-500">
+        <div className="flex justify-between text-xs text-muted">
           <span>היום · <span className="num">{fmt(start)}</span></span>
           <span>
-            {monthLabel(rows[rows.length - 1].month)} · <span className="num text-white">{fmt(rows[rows.length - 1].closing)}</span>
+            {monthLabel(rows[rows.length - 1].month)} · <span className="num text-ink">{fmt(rows[rows.length - 1].closing)}</span>
           </span>
         </div>
       )}

@@ -31,7 +31,7 @@ async function run(fn: () => Promise<void>): Promise<ActionState> {
     return { ok: Date.now() };
   } catch (e) {
     console.error(e);
-    return { error: "השמירה ב-Notion נכשלה. בדוק שלאינטגרציה יש הרשאת עריכה למסד \"תכנון פיננסי\"." };
+    return { error: "השמירה נכשלה" };
   }
 }
 

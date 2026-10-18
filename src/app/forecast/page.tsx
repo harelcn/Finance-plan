@@ -17,12 +17,12 @@ export default async function ForecastPage() {
     <>
       <DatePicker input={input} />
 
-      <Card title="יתרה בסוף כל חודש" aside="שנה קדימה">
+      <Card title="יתרה בסוף כל חודש">
         <ForecastChart rows={rows} start={input.currentBalance} />
       </Card>
 
       <Card title="פירוט חודשי">
-        <div className="divide-y divide-white/5 -my-2">
+        <div className="divide-y divide-line -my-2">
           {rows.map((r, i) => {
             const net = r.closing - r.opening;
             return (
@@ -30,14 +30,14 @@ export default async function ForecastPage() {
                 <summary className="flex items-center justify-between cursor-pointer list-none">
                   <span className="flex flex-col">
                     <span className="text-sm">{monthLabel(r.month)}</span>
-                    <span className="text-[11px] text-zinc-500">
+                    <span className="text-[11px] text-muted">
                       {i === 0 ? "עד סוף החודש · " : ""}
                       <span className="num">{signed(net)}</span>
                     </span>
                   </span>
-                  <span className={`num text-base ${r.closing < 0 ? "text-zinc-400" : ""}`}>{fmt(r.closing)}</span>
+                  <span className={`num text-base ${r.closing < 0 ? "text-danger" : ""}`}>{fmt(r.closing)}</span>
                 </summary>
-                <div className="mt-3 space-y-1.5 text-xs text-zinc-400 bg-white/[0.03] rounded-xl p-3">
+                <div className="mt-3 space-y-1.5 text-xs text-muted bg-subtle rounded-xl p-3">
                   <div className="flex justify-between"><span>פתיחה</span><span className="num">{fmt(r.opening)}</span></div>
                   <div className="flex justify-between"><span>הכנסה צפויה</span><span className="num">{fmt(r.incomeRemaining)}</span></div>
                   <div className="flex justify-between"><span>הוצאות שוטפות</span><span className="num">{fmt(-r.variableRemaining)}</span></div>

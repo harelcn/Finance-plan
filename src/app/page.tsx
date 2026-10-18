@@ -26,24 +26,24 @@ export default async function Home() {
   return (
     <>
       {/* ───── Balance hero ───── */}
-      <section className="hero rounded-3xl border border-white/10 p-6 space-y-6">
+      <section className="hero rounded-3xl border border-line p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-zinc-400">יתרה כולל סגירות</span>
-          <span className="text-[11px] text-zinc-500">{dateLabel(today)}</span>
+          <span className="text-xs text-muted">יתרה כולל סגירות</span>
+          <span className="text-[11px] text-muted">{dateLabel(today)}</span>
         </div>
         <Amount value={b.total} size="text-5xl" />
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-black/30 border border-white/5 px-4 py-3">
-            <p className="text-[11px] text-zinc-500">בחשבון</p>
+          <div className="rounded-2xl bg-chip/10 border border-line px-4 py-3">
+            <p className="text-[11px] text-muted">בחשבון</p>
             <p className="text-base num">{fmt(inAccount)}</p>
           </div>
-          <div className="rounded-2xl bg-black/30 border border-white/5 px-4 py-3">
-            <p className="text-[11px] text-zinc-500">סגירות פתוחות · {actuals.openClosings.length}</p>
+          <div className="rounded-2xl bg-chip/10 border border-line px-4 py-3">
+            <p className="text-[11px] text-muted">סגירות פתוחות · {actuals.openClosings.length}</p>
             <p className="text-base num">{fmt(b.openClosings)}</p>
           </div>
         </div>
-        <details className="group text-xs text-zinc-500">
-          <summary className="cursor-pointer list-none hover:text-zinc-300">איך זה מחושב ▾</summary>
+        <details className="group text-xs text-muted">
+          <summary className="cursor-pointer list-none hover:text-ink">איך זה מחושב ▾</summary>
           <div className="mt-3 space-y-1.5">
             <p>סכום התחלתי (23.5) · {fmt(b.base)}</p>
             <p>+ תשלומים שנכנסו · {fmt(b.payments)}</p>
@@ -75,7 +75,7 @@ export default async function Home() {
 
       {/* ───── Overdue: date passed, no linked expense yet ───── */}
       {overdue.length > 0 && (
-        <Card title="טרם יצאו" aside="התאריך עבר ולא שויכה הוצאה ב-Notion">
+        <Card title="טרם יצאו">
           <RowList>
             {overdue.map((e, i) => (
               <Row

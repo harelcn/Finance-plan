@@ -4,11 +4,11 @@ import { Icon, type IconName } from "./Icon";
 
 export function Card({ title, aside, children, className = "" }: { title?: string; aside?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`bg-zinc-900/60 border border-white/5 rounded-2xl p-5 space-y-4 ${className}`}>
+    <section className={`bg-surface border border-line rounded-2xl p-5 space-y-4 shadow-[0_1px_3px_rgba(16,24,20,0.04)] ${className}`}>
       {(title || aside) && (
         <div className="flex items-baseline justify-between gap-3">
-          {title && <h2 className="text-[13px] font-medium text-zinc-300">{title}</h2>}
-          {aside && <div className="text-xs text-zinc-500">{aside}</div>}
+          {title && <h2 className="text-[13px] font-medium text-ink">{title}</h2>}
+          {aside && <div className="text-xs text-muted">{aside}</div>}
         </div>
       )}
       {children}
@@ -20,7 +20,7 @@ export function PageTitle({ title, subtitle }: { title: string; subtitle?: strin
   return (
     <div className="pt-1">
       <h1 className="text-2xl font-light">{title}</h1>
-      {subtitle && <p className="text-xs text-zinc-500 mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-xs text-muted mt-1">{subtitle}</p>}
     </div>
   );
 }
@@ -31,7 +31,7 @@ export function Amount({ value, size = "text-4xl" }: { value: number; size?: str
   return (
     <span className={`num inline-flex items-baseline gap-1 font-light tracking-tight ${size}`}>
       {r < 0 && <span>−</span>}
-      <span className="text-[0.5em] text-zinc-400 font-normal">₪</span>
+      <span className="text-[0.5em] text-muted font-normal">₪</span>
       {Math.abs(r).toLocaleString("he-IL")}
     </span>
   );
@@ -40,8 +40,8 @@ export function Amount({ value, size = "text-4xl" }: { value: number; size?: str
 export function ProgressBar({ pct, danger }: { pct: number; danger?: boolean }) {
   const clamped = Math.max(0, Math.min(100, pct));
   return (
-    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-      <div className={`h-full rounded-full transition-all ${danger ? "bg-zinc-500" : "bg-white"}`} style={{ width: `${clamped}%` }} />
+    <div className="w-full h-1.5 bg-subtle rounded-full overflow-hidden">
+      <div className={`h-full rounded-full transition-all ${danger ? "bg-danger" : "bg-brand"}`} style={{ width: `${clamped}%` }} />
     </div>
   );
 }
@@ -53,10 +53,10 @@ export function TargetBar({ label, actual, target, invert }: { label: string; ac
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-baseline text-xs gap-2">
-        <span className="text-zinc-400">{label}</span>
-        <span className={over ? "text-white" : "text-zinc-400"}>
+        <span className="text-muted">{label}</span>
+        <span className={over ? (invert ? "text-danger" : "text-brand font-medium") : "text-muted"}>
           <span className="num">{fmt(actual)} / {fmt(target)}</span>
-          <span className="text-zinc-500"> · {p.toFixed(1)}%</span>
+          <span className="text-muted"> · {p.toFixed(1)}%</span>
         </span>
       </div>
       <ProgressBar pct={p} danger={invert && over} />
@@ -66,7 +66,7 @@ export function TargetBar({ label, actual, target, invert }: { label: string; ac
 
 export function Line({ label, value, muted, strong }: { label: React.ReactNode; value: number | string; muted?: boolean; strong?: boolean }) {
   return (
-    <div className={`flex justify-between text-sm ${muted ? "text-zinc-400" : ""} ${strong ? "text-white font-medium" : ""}`}>
+    <div className={`flex justify-between text-sm ${muted ? "text-muted" : ""} ${strong ? "text-ink font-medium" : ""}`}>
       <span>{label}</span>
       <span className="num">{typeof value === "number" ? fmt(value) : value}</span>
     </div>
@@ -81,16 +81,16 @@ export function Row({ icon, title, subtitle, amount, amountNote, action, done }:
 }) {
   return (
     <div className={`flex items-center gap-3 py-3 ${done ? "opacity-40 [&_.strike]:line-through" : ""}`}>
-      <span className="w-10 h-10 shrink-0 grid place-items-center rounded-full bg-white/5 text-zinc-300">
+      <span className="w-10 h-10 shrink-0 grid place-items-center rounded-full bg-subtle text-brand">
         <Icon name={icon} />
       </span>
       <span className="flex-1 min-w-0">
         <span className="strike block text-sm truncate">{title}</span>
-        {subtitle && <span className="block text-xs text-zinc-500 truncate">{subtitle}</span>}
+        {subtitle && <span className="block text-xs text-muted truncate">{subtitle}</span>}
       </span>
       <span className="text-left">
         <span className="strike block text-sm num">{fmt(amount)}</span>
-        {amountNote && <span className="block text-[11px] text-zinc-500">{amountNote}</span>}
+        {amountNote && <span className="block text-[11px] text-muted">{amountNote}</span>}
       </span>
       {action}
     </div>
@@ -99,23 +99,23 @@ export function Row({ icon, title, subtitle, amount, amountNote, action, done }:
 
 export function RowList({ children, empty }: { children: React.ReactNode; empty?: string }) {
   const has = Array.isArray(children) ? children.length > 0 : Boolean(children);
-  return has ? <div className="divide-y divide-white/5 -my-3">{children}</div> : <p className="text-xs text-zinc-600">{empty ?? "אין עדיין"}</p>;
+  return has ? <div className="divide-y divide-line -my-3">{children}</div> : <p className="text-xs text-faint">{empty ?? "אין עדיין"}</p>;
 }
 
 export function QuickAction({ href, icon, label }: { href: string; icon: IconName; label: string }) {
   return (
     <Link href={href} className="flex flex-col items-center gap-2 group">
-      <span className="w-14 h-14 grid place-items-center rounded-2xl bg-zinc-900 border border-white/5 text-zinc-200 group-hover:bg-zinc-800 group-active:scale-95 transition">
+      <span className="w-14 h-14 grid place-items-center rounded-2xl bg-surface border border-line text-brand shadow-[0_1px_3px_rgba(16,24,20,0.05)] group-hover:bg-subtle group-active:scale-95 transition">
         <Icon name={icon} className="w-6 h-6" />
       </span>
-      <span className="text-[11px] text-zinc-400 text-center leading-tight">{label}</span>
+      <span className="text-[11px] text-muted text-center leading-tight">{label}</span>
     </Link>
   );
 }
 
 export function MoreLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white">
+    <Link href={href} className="flex items-center gap-1 text-xs text-brand font-medium hover:opacity-80">
       {children}
       <Icon name="chevron" className="w-3.5 h-3.5" />
     </Link>

@@ -2,15 +2,15 @@
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { addPlanned, addStanding, addTarget, removeRow, type ActionState } from "@/app/actions";
 
-const input = "bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm w-full min-w-0 focus:outline-none focus:border-white/40";
-const label = "text-xs text-zinc-500 space-y-1.5 block";
+const input = "bg-surface border border-line rounded-xl px-3 py-2.5 text-sm w-full min-w-0 focus:outline-none focus:border-brand";
+const label = "text-xs text-muted space-y-1.5 block";
 
 function Submit({ pending, children }: { pending: boolean; children: React.ReactNode }) {
   return (
     <button
       type="submit"
       disabled={pending}
-      className="w-full bg-white text-black rounded-xl px-4 py-3 text-sm font-medium disabled:opacity-50 active:scale-[0.99] transition"
+      className="w-full bg-brand text-onbrand rounded-xl px-4 py-3 text-sm font-medium disabled:opacity-50 active:scale-[0.99] transition"
     >
       {pending ? "שומר…" : children}
     </button>
@@ -26,7 +26,7 @@ function useResetOnSuccess(state: ActionState) {
 }
 
 function FormError({ state }: { state: ActionState }) {
-  return state.error ? <p className="text-xs text-zinc-300">⚠ {state.error}</p> : null;
+  return state.error ? <p className="text-xs text-ink">⚠ {state.error}</p> : null;
 }
 
 export function TargetForm({ today, defaultFrom }: { today: string; defaultFrom?: string }) {
@@ -34,7 +34,6 @@ export function TargetForm({ today, defaultFrom }: { today: string; defaultFrom?
   const ref = useResetOnSuccess(state);
   return (
     <form ref={ref} action={action} className="space-y-4">
-      <p className="text-xs text-zinc-500">יעד חדש מחליף את הקודם מהחודש שבו הוא מתחיל</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <label className={label}>
           <span>סוג</span>
@@ -136,7 +135,7 @@ export function DeleteButton({ id }: { id: string }) {
   const [confirm, setConfirm] = useState(false);
   if (!confirm)
     return (
-      <button onClick={() => setConfirm(true)} className="text-zinc-600 hover:text-zinc-300 text-xs px-1" aria-label="מחק">
+      <button onClick={() => setConfirm(true)} className="text-faint hover:text-ink text-xs px-1" aria-label="מחק">
         ✕
       </button>
     );
@@ -145,11 +144,11 @@ export function DeleteButton({ id }: { id: string }) {
       <button
         disabled={pending}
         onClick={() => start(async () => void (await removeRow(id)))}
-        className="text-white underline"
+        className="text-ink underline"
       >
         {pending ? "…" : "מחק"}
       </button>
-      <button onClick={() => setConfirm(false)} className="text-zinc-500">
+      <button onClick={() => setConfirm(false)} className="text-muted">
         ביטול
       </button>
     </span>
@@ -160,17 +159,17 @@ export function DeleteButton({ id }: { id: string }) {
 export function AddSheet({ label, children }: { label: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return open ? (
-    <div className="bg-zinc-900/60 border border-white/5 rounded-2xl p-5 space-y-4">
+    <div className="bg-surface border border-line rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-[13px] font-medium text-zinc-300">{label}</h2>
-        <button onClick={() => setOpen(false)} className="text-xs text-zinc-500 hover:text-white">סגור</button>
+        <h2 className="text-[13px] font-medium text-ink">{label}</h2>
+        <button onClick={() => setOpen(false)} className="text-xs text-muted hover:text-ink">סגור</button>
       </div>
       {children}
     </div>
   ) : (
     <button
       onClick={() => setOpen(true)}
-      className="w-full flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 py-4 text-sm text-zinc-300 hover:bg-white/5 active:scale-[0.99] transition"
+      className="w-full flex items-center justify-center gap-2 rounded-2xl border border-dashed border-line py-4 text-sm text-ink hover:bg-subtle active:scale-[0.99] transition"
     >
       <span className="text-lg leading-none">+</span> {label}
     </button>

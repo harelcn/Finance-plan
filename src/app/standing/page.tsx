@@ -26,7 +26,7 @@ export default async function StandingPage() {
 
   return (
     <>
-      <PageTitle title="הוראות קבע" subtitle="ירדה = רק אחרי שרשמת ב-Notion ושייכת ב״שיוך להוצאה מתוכננת״" />
+      <PageTitle title="הוראות קבע" />
 
       <AddSheet label="הוראת קבע חדשה">
         <StandingForm today={today} />
