@@ -116,17 +116,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="paper fixed bottom-0 inset-x-0 z-30 pb-[env(safe-area-inset-bottom)]"
         style={{ filter: "drop-shadow(0 -3px 10px rgba(0,0,0,0.10))" }}
       >
-        <div className="absolute inset-0 flex flex-col" aria-hidden>
-          <div className="h-16 flex">
-            <div className="flex-1 bg-surface" />
-            <svg viewBox="0 0 120 64" className="w-[122px] -mx-px h-16 shrink-0 block relative" preserveAspectRatio="none" style={{ fill: "rgb(var(--surface))" }}>
-              {/* edges start close to the button and keep sloping until they meet its sides at the middle
-                  (button r=27 centred at x=60, y=10; contact at x≈31.5 / 88.5, no flat run, ~1.5px gap) */}
-              <path d="M0,0 H18 C25,0 29,3 31.5,10 H88.5 C91,3 95,0 102,0 H120 V64 H0 Z" />
+        {/* One seamless white body from the button's equator (y=10) down; only a thin 12px strip on top
+            carries the shoulders. Pieces overlap so iOS never paints a hairline seam while scrolling. */}
+        <div className="absolute inset-0" aria-hidden>
+          <div className="absolute inset-x-0 top-[9px] bottom-0 bg-surface" />
+          <div className="absolute inset-x-0 top-0 h-3 flex">
+            <div className="flex-1 bg-surface -me-px" />
+            <svg viewBox="0 0 120 12" className="w-[120px] h-3 shrink-0 block" style={{ fill: "rgb(var(--surface))" }}>
+              {/* shoulders start close to the button and slope into its sides at the middle
+                  (button r=27 centred at x=60, y=10; contact at x≈31.5 / 88.5) */}
+              <path d="M0,0 H18 C25,0 29,3 31.5,10 V12 H0 Z M88.5,12 V10 C91,3 95,0 102,0 H120 V12 Z" />
             </svg>
-            <div className="flex-1 bg-surface" />
+            <div className="flex-1 bg-surface -ms-px" />
           </div>
-          <div className="flex-1 bg-surface" />
         </div>
 
         <div className="relative max-w-xl mx-auto h-16 px-2 grid grid-cols-5 items-center">
