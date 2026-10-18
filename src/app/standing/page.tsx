@@ -19,12 +19,14 @@ export default async function StandingPage() {
   const statusOf = (id: string) => {
     const e = thisMonth.find((x) => x.itemId === id);
     if (!e) return "לא פעילה החודש";
-    return e.date <= today ? `ירדה ב-${dateLabel(e.date)}` : `תרד ב-${dateLabel(e.date)}`;
+    if (e.due === 0) return "ירדה החודש ✓";
+    if (e.due < e.amount) return `ירדה חלקית · נשאר ${fmt(e.due)}`;
+    return e.date <= today ? `טרם ירדה (חיוב ב-${dateLabel(e.date)})` : `תרד ב-${dateLabel(e.date)}`;
   };
 
   return (
     <>
-      <PageTitle title="הוראות קבע" subtitle="חיובים חודשיים קבועים — נכנסים לתחזית בכל חודש ביום החיוב" />
+      <PageTitle title="הוראות קבע" subtitle="ירדה = רק אחרי שרשמת ב-Notion ושייכת ב״שיוך להוצאה מתוכננת״" />
 
       <AddSheet label="הוראת קבע חדשה">
         <StandingForm today={today} />

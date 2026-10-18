@@ -8,7 +8,7 @@ export interface Target {
   from: string; // YYYY-MM-DD
 }
 
-/** A real expense row in Notion linked ("שיוך להוצאה מתוכננת") to a planned expense. */
+/** A real expense row in Notion linked ("שיוך להוצאה מתוכננת") to a planned expense / standing order. */
 export interface LinkedPayment {
   date: string;
   amount: number;
@@ -33,6 +33,7 @@ export interface StandingOrder {
   start: string; // YYYY-MM-DD
   end: string | null;
   notes?: string;
+  payments?: LinkedPayment[];
 }
 
 export interface PlanSettings {

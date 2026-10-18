@@ -85,12 +85,12 @@ describe("planMonth", () => {
     expect(p.standingUpcoming).toBe(4_000);
     expect(p.variableRemaining).toBe(0);
   });
-  it("treats a standing charge whose date passed as already recorded, not variable spending", () => {
+  it("a standing charge counts as charged only once linked to a Notion expense", () => {
     const p = planMonth(
       {
         ...base,
         actuals: { "2026-10": { closings: 0, expenses: 100 } },
-        standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null }],
+        standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null, payments: [{ date: "2026-10-05", amount: 100 }] }],
       },
       "2026-10",
     );
@@ -98,6 +98,16 @@ describe("planMonth", () => {
     expect(p.expenseTarget).toBe(3_100);
     expect(p.variableRecorded).toBe(0);
     expect(p.variableRemaining).toBe(3_000);
+  });
+  it("a standing charge whose date passed but is not linked stays due (טרם ירדה)", () => {
+    const p = planMonth(
+      { ...base, standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null }] },
+      "2026-10",
+    );
+    expect(p.standingUpcoming).toBe(100);
+    // still part of the target, never of the actual
+    expect(p.expenseTarget).toBe(3_100);
+    expect(p.recordedExpenses).toBe(0);
   });
   it("keeps a past planned expense with no linked expense as overdue (טרם יצא)", () => {
     const p = planMonth(
