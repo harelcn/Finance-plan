@@ -6,9 +6,17 @@ export const metadata: Metadata = {
   title: "תכנון פיננסי",
   description: "תחזית יתרה, יעדים חודשיים, הוצאות מתוכננות והוראות קבע",
   icons: { icon: "/icon.png", apple: "/icon.png" },
+  // "Add to Home Screen" on iPhone opens it full-screen like an app, green under the status bar.
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "תכנון פיננסי" },
 };
 
-export const viewport: Viewport = { themeColor: "#62b04f", width: "device-width", initialScale: 1 };
+// viewport-fit=cover: draw edge to edge (under the notch / home indicator); safe-area insets pad the content.
+export const viewport: Viewport = {
+  themeColor: "#62b04f",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

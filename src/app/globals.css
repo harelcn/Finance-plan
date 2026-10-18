@@ -41,6 +41,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html { background: rgb(var(--page)); }
+
 body {
   background: rgb(var(--page));
   color: rgb(var(--ink));

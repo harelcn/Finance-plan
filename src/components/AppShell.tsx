@@ -46,7 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {/* green top bar: menu · title · home */}
-      <header className="sticky top-0 z-30 bg-page/95 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 bg-page/95 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
         <div className="max-w-xl mx-auto h-14 px-3 grid grid-cols-[40px_1fr_40px] items-center">
           <button onClick={() => setOpen(true)} aria-label="תפריט" className="w-10 h-10 grid place-items-center rounded-full hover:bg-ink/10">
             <Icon name="menu" className="w-6 h-6" />
@@ -64,7 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onClick={() => setOpen(false)}
       />
       <nav
-        className={`paper fixed top-0 right-0 z-50 h-full w-[300px] max-w-[85vw] bg-surface flex flex-col transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`paper fixed top-0 right-0 z-50 h-full pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] w-[300px] max-w-[85vw] bg-surface flex flex-col transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}
         aria-hidden={!open}
       >
         <div className="h-14 px-4 flex items-center justify-between border-b border-line">
@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </ul>
       </nav>
 
-      <main className="max-w-xl mx-auto px-4 pt-3 pb-32 space-y-4">{children}</main>
+      <main className="max-w-xl mx-auto px-4 pt-3 pb-[calc(8rem+env(safe-area-inset-bottom))] space-y-4">{children}</main>
 
       {/* "+" quick-add menu */}
       {add && <div className="fixed inset-0 z-30" onClick={() => setAdd(false)} />}
@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="absolute inset-0 flex flex-col" aria-hidden>
           <div className="h-16 flex">
             <div className="flex-1 bg-surface" />
-            <svg viewBox="0 0 120 64" className="w-[120px] h-16 shrink-0 block" style={{ fill: "rgb(var(--surface))" }}>
+            <svg viewBox="0 0 120 64" className="w-[122px] -mx-px h-16 shrink-0 block relative" preserveAspectRatio="none" style={{ fill: "rgb(var(--surface))" }}>
               {/* edges start close to the button and keep sloping until they meet its sides at the middle
                   (button r=27 centred at x=60, y=10; contact at x≈31.5 / 88.5, no flat run, ~1.5px gap) */}
               <path d="M0,0 H18 C25,0 29,3 31.5,10 H88.5 C91,3 95,0 102,0 H120 V64 H0 Z" />
