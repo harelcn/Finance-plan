@@ -13,7 +13,7 @@ const PATHS = {
   chevron: "M15 6l-6 6 6 6",
   edit: "M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4",
   receipt: "M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6M9 16h3",
-  coins: "M12 3v18M16.5 7c0-1.7-2-3-4.5-3S7.5 5.3 7.5 7s2 2.7 4.5 3 4.5 1.3 4.5 3-2 3-4.5 3-4.5-1.3-4.5-3",
+  coins: "M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6",
 } as const;
 
 export type IconName = keyof typeof PATHS;
