@@ -120,8 +120,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="h-16 flex">
             <div className="flex-1 bg-surface" />
             <svg viewBox="0 0 120 64" className="w-[120px] h-16 shrink-0 block" style={{ fill: "rgb(var(--surface))" }}>
-              {/* edges ease down 10px and meet the button's sides at its middle (button r=27 + 4px gap) */}
-              <path d="M0,0 H6 C18,0 21,10 29,10 H91 C99,10 102,0 114,0 H120 V64 H0 Z" />
+              {/* edges start close to the button and keep sloping until they meet its sides at the middle
+                  (button r=27 centred at x=60, y=10; contact at x≈31.5 / 88.5, no flat run, ~1.5px gap) */}
+              <path d="M0,0 H18 C25,0 29,3 31.5,10 H88.5 C91,3 95,0 102,0 H120 V64 H0 Z" />
             </svg>
             <div className="flex-1 bg-surface" />
           </div>
