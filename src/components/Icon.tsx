@@ -11,6 +11,7 @@ const PATHS = {
   wallet: "M3 7h15a3 3 0 0 1 3 3v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm0 0 2-3h11M16 14h1",
   clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v5l3 2",
   chevron: "M15 6l-6 6 6 6",
+  edit: "M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4",
 } as const;
 
 export type IconName = keyof typeof PATHS;

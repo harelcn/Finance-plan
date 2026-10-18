@@ -1,4 +1,4 @@
-import { AddSheet, DeleteButton, PlannedForm } from "@/components/Forms";
+import { AddSheet, EditableRow, PlannedForm } from "@/components/Forms";
 import { Card, PageTitle, Row, RowList } from "@/components/ui";
 import { dateLabel, monthLabel, ymOf } from "@/lib/dates";
 import { plannedSchedule } from "@/lib/forecast";
@@ -42,14 +42,20 @@ export default async function PlannedPage() {
           {open.map((i) => {
             const n = i.schedule.length;
             return (
-              <Row
+              <EditableRow
                 key={i.p.id}
-                icon={i.overdue > 0 ? "clock" : "calendar"}
-                title={i.p.name}
-                subtitle={`${n > 1 ? `${n} תשלומים מ-${monthLabel(ymOf(i.p.date))} · ` : ""}${status(i)}`}
-                amount={-i.remaining}
-                amountNote={i.remaining < i.p.amount ? `מתוך ${fmt(i.p.amount)}` : n > 1 ? `${fmt(i.p.amount / n)} לחודש` : "חד פעמי"}
-                action={<DeleteButton id={i.p.id} />}
+                today={today}
+                kind="planned"
+                item={i.p}
+                row={
+                  <Row
+                    icon={i.overdue > 0 ? "clock" : "calendar"}
+                    title={i.p.name}
+                    subtitle={`${n > 1 ? `${n} תשלומים מ-${monthLabel(ymOf(i.p.date))} · ` : ""}${status(i)}`}
+                    amount={-i.remaining}
+                    amountNote={i.remaining < i.p.amount ? `מתוך ${fmt(i.p.amount)}` : n > 1 ? `${fmt(i.p.amount / n)} לחודש` : "חד פעמי"}
+                  />
+                }
               />
             );
           })}
@@ -60,14 +66,12 @@ export default async function PlannedPage() {
         <Card title="יצאו">
           <RowList>
             {done.map((i) => (
-              <Row
+              <EditableRow
                 key={i.p.id}
-                icon="calendar"
-                title={i.p.name}
-                subtitle={status(i)}
-                amount={-i.p.amount}
-                done
-                action={<DeleteButton id={i.p.id} />}
+                today={today}
+                kind="planned"
+                item={i.p}
+                row={<Row icon="calendar" title={i.p.name} subtitle={status(i)} amount={-i.p.amount} done />}
               />
             ))}
           </RowList>

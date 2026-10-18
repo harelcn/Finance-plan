@@ -1,4 +1,4 @@
-import { AddSheet, DeleteButton, StandingForm } from "@/components/Forms";
+import { AddSheet, EditableRow, StandingForm } from "@/components/Forms";
 import { Card, PageTitle, Row, RowList } from "@/components/ui";
 import { addMonths, dateLabel, monthLabel, ymOf } from "@/lib/dates";
 import { eventsInMonth } from "@/lib/forecast";
@@ -35,14 +35,20 @@ export default async function StandingPage() {
       <Card title="פעילות" aside={`${monthLabel(nextYm)}: ${fmt(nextMonth)}`}>
         <RowList empty="עוד לא הוספת הוראות קבע">
           {plan.standing.map((s) => (
-            <Row
+            <EditableRow
               key={s.id}
-              icon="repeat"
-              title={s.name}
-              subtitle={`כל ${Number(s.start.slice(8, 10))} בחודש${s.end ? ` עד ${dateLabel(s.end)}` : ""} · ${statusOf(s.id)}`}
-              amount={-s.amount}
-              amountNote="לחודש"
-              action={<DeleteButton id={s.id} />}
+              today={today}
+              kind="standing"
+              item={s}
+              row={
+                <Row
+                  icon="repeat"
+                  title={s.name}
+                  subtitle={`כל ${Number(s.start.slice(8, 10))} בחודש${s.end ? ` עד ${dateLabel(s.end)}` : ""} · ${statusOf(s.id)}`}
+                  amount={-s.amount}
+                  amountNote="לחודש"
+                />
+              }
             />
           ))}
         </RowList>

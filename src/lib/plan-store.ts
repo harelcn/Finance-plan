@@ -82,6 +82,43 @@ export async function createStanding(s: Omit<StandingOrder, "id">) {
   });
 }
 
+// Edits leave Notes and linked expenses untouched.
+export async function updateTarget(id: string, t: Omit<Target, "id">) {
+  await notion.pages.update({
+    page_id: id,
+    properties: {
+      Name: { title: [{ text: { content: t.kind === "income" ? "יעד הכנסה חודשי" : "יעד הוצאה חודשי" } }] },
+      "סוג": { select: { name: PLAN_TYPES[t.kind] } },
+      "סכום": { number: t.amount },
+      "תאריך": dateProp(t.from),
+    },
+  });
+}
+
+export async function updatePlanned(id: string, p: Omit<PlannedExpense, "id" | "notes" | "payments">) {
+  await notion.pages.update({
+    page_id: id,
+    properties: {
+      Name: { title: [{ text: { content: p.name } }] },
+      "סכום": { number: p.amount },
+      "תאריך": dateProp(p.date),
+      "תשלומים": { number: p.installments },
+    },
+  });
+}
+
+export async function updateStanding(id: string, s: Omit<StandingOrder, "id" | "notes" | "payments">) {
+  await notion.pages.update({
+    page_id: id,
+    properties: {
+      Name: { title: [{ text: { content: s.name } }] },
+      "סכום": { number: s.amount },
+      "תאריך": dateProp(s.start),
+      "תאריך סיום": dateProp(s.end),
+    },
+  });
+}
+
 /** Moves the row to Notion's trash (restorable from there). */
 export async function archiveRow(id: string) {
   await notion.pages.update({ page_id: id, archived: true });

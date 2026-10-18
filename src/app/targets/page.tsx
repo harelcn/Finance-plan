@@ -1,4 +1,4 @@
-import { AddSheet, DeleteButton, TargetForm } from "@/components/Forms";
+import { AddSheet, EditableRow, TargetForm } from "@/components/Forms";
 import { Amount, Card, PageTitle, Row, RowList } from "@/components/ui";
 import { monthLabel, ymOf } from "@/lib/dates";
 import { targetFor } from "@/lib/forecast";
@@ -34,13 +34,19 @@ export default async function TargetsPage() {
       <Card title="היסטוריית יעדים">
         <RowList>
           {[...plan.targets].reverse().map((t) => (
-            <Row
+            <EditableRow
               key={t.id}
-              icon={t.kind === "income" ? "chart" : "wallet"}
-              title={t.kind === "income" ? "יעד הכנסה" : "יעד הוצאה"}
-              subtitle={`בתוקף מ-${monthLabel(ymOf(t.from))}`}
-              amount={t.kind === "income" ? t.amount : -t.amount}
-              action={<DeleteButton id={t.id} />}
+              today={today}
+              kind="target"
+              item={t}
+              row={
+                <Row
+                  icon={t.kind === "income" ? "chart" : "wallet"}
+                  title={t.kind === "income" ? "יעד הכנסה" : "יעד הוצאה"}
+                  subtitle={`בתוקף מ-${monthLabel(ymOf(t.from))}`}
+                  amount={t.kind === "income" ? t.amount : -t.amount}
+                />
+              }
             />
           ))}
         </RowList>

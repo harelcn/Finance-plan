@@ -1,6 +1,14 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { archiveRow, createPlanned, createStanding, createTarget } from "@/lib/plan-store";
+import {
+  archiveRow,
+  createPlanned,
+  createStanding,
+  createTarget,
+  updatePlanned,
+  updateStanding,
+  updateTarget,
+} from "@/lib/plan-store";
 
 export interface ActionState {
   error?: string;
@@ -17,6 +25,14 @@ function readAmount(fd: FormData, key = "amount"): number | null {
 function readDate(fd: FormData, key: string): string | null {
   const v = String(fd.get(key) ?? "");
   return DATE_RE.test(v) ? v : null;
+}
+
+const ID_RE = /^[0-9a-f-]{32,36}$/i;
+
+/** Present (and valid) when the form edits an existing row instead of creating one. */
+function readId(fd: FormData): string | null {
+  const v = String(fd.get("id") ?? "");
+  return ID_RE.test(v) ? v : null;
 }
 
 function readName(fd: FormData): string | null {
@@ -40,7 +56,8 @@ export async function addTarget(_: ActionState, fd: FormData): Promise<ActionSta
   const amount = readAmount(fd);
   const from = readDate(fd, "from");
   if (!amount || !from) return { error: "צריך סכום ותאריך התחלה" };
-  return run(() => createTarget({ kind, amount, from }));
+  const id = readId(fd);
+  return run(() => (id ? updateTarget(id, { kind, amount, from }) : createTarget({ kind, amount, from })));
 }
 
 export async function addPlanned(_: ActionState, fd: FormData): Promise<ActionState> {
@@ -52,6 +69,8 @@ export async function addPlanned(_: ActionState, fd: FormData): Promise<ActionSt
   if (!name || !amount || !date) return { error: "צריך שם, סכום ותאריך" };
   if (!Number.isFinite(installments) || installments < 1 || installments > 120)
     return { error: "מספר תשלומים בין 1 ל-120" };
+  const id = readId(fd);
+  if (id) return run(() => updatePlanned(id, { name, amount, date, installments }));
   const notes = String(fd.get("notes") ?? "").trim().slice(0, 500);
   return run(() => createPlanned({ name, amount, date, installments, notes }));
 }
@@ -63,10 +82,11 @@ export async function addStanding(_: ActionState, fd: FormData): Promise<ActionS
   const end = readDate(fd, "end");
   if (!name || !amount || !start) return { error: "צריך שם, סכום חודשי ותאריך התחלה" };
   if (end && end < start) return { error: "תאריך הסיום לפני ההתחלה" };
-  return run(() => createStanding({ name, amount, start, end }));
+  const id = readId(fd);
+  return run(() => (id ? updateStanding(id, { name, amount, start, end }) : createStanding({ name, amount, start, end })));
 }
 
 export async function removeRow(id: string): Promise<ActionState> {
-  if (!/^[0-9a-f-]{32,36}$/i.test(id)) return { error: "מזהה לא תקין" };
+  if (!ID_RE.test(id)) return { error: "מזהה לא תקין" };
   return run(() => archiveRow(id));
 }
