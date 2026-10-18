@@ -41,7 +41,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html { background: rgb(var(--page)); }
+html {
+  background: rgb(var(--page));
+  /* scroll only: no pinch-zoom, no double-tap zoom */
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   background: rgb(var(--page));
@@ -50,7 +55,18 @@ body {
   font-weight: 400;
 }
 
-input, select, textarea { color-scheme: light; }
+input, select, textarea { color-scheme: light; font-size: 16px; }
+
+/* iOS date/select fields keep their own intrinsic width and spill into the next column — tame them. */
+.field { -webkit-appearance: none; appearance: none; display: block; }
+input.field[type="date"] { min-width: 0; text-align: right; line-height: 3rem; }
+input.field[type="date"]::-webkit-date-and-time-value { text-align: right; }
+select.field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23626c65' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.9rem center;
+  padding-left: 2.25rem;
+}
 
 .num {
   direction: ltr;

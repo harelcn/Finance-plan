@@ -4,7 +4,8 @@ import { addPlanned, addStanding, addTarget, removeRow, type ActionState } from 
 import type { PlannedExpense, StandingOrder, Target } from "@/lib/types";
 import { Icon } from "./Icon";
 
-const input = "bg-surface border border-line rounded-xl px-3 py-2.5 text-sm w-full min-w-0 focus:outline-none focus:border-brand";
+// 16px text: iOS zooms into any field smaller than that.
+const input = "field bg-surface border border-line rounded-xl px-3 h-12 text-base w-full min-w-0 focus:outline-none focus:border-brand";
 const label = "text-xs text-muted space-y-1.5 block";
 
 function Submit({ pending, children }: { pending: boolean; children: React.ReactNode }) {
@@ -42,7 +43,7 @@ export function TargetForm({ today, defaultFrom, initial, onDone }: { today: str
   return (
     <form ref={ref} action={action} className="space-y-4">
       {initial && <input type="hidden" name="id" value={initial.id} />}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 [&>*]:min-w-0">
         <label className={label}>
           <span>סוג</span>
           <select name="kind" defaultValue={initial?.kind ?? "income"} className={input}>
@@ -72,7 +73,7 @@ export function PlannedForm({ today, initial, onDone }: { today: string } & Edit
   return (
     <form ref={ref} action={action} className="space-y-4">
       {initial && <input type="hidden" name="id" value={initial.id} />}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 [&>*]:min-w-0">
         <label className={label}>
           <span>שם</span>
           <input name="name" defaultValue={initial?.name} className={input} placeholder="חתונה" required />
@@ -124,7 +125,7 @@ export function StandingForm({ today, initial, onDone }: { today: string } & Edi
   return (
     <form ref={ref} action={action} className="space-y-4">
       {initial && <input type="hidden" name="id" value={initial.id} />}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 [&>*]:min-w-0">
         <label className={label}>
           <span>שם</span>
           <input name="name" defaultValue={initial?.name} className={input} placeholder="ביטוח רכב" required />

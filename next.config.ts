@@ -4,8 +4,9 @@ import path from "path";
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   experimental: {
-    // Keep visited screens in the browser's router cache so going back and forth is instant.
-    staleTimes: { dynamic: 30, static: 180 },
+    // Screens (visited or prefetched) stay in the browser's router cache for 5 minutes, so even a
+    // first tap is instant. Saving anything in the app clears it right away.
+    staleTimes: { dynamic: 300, static: 300 },
   },
 };
 

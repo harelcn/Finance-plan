@@ -35,6 +35,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [refreshing, startRefresh] = useTransition();
   const current = NAV.find((n) => n.href === path) ?? NAV[0];
 
+  // Lock the zoom on iPhone (Safari ignores user-scalable=no). Also warm every screen up front.
+  useEffect(() => {
+    const stop = (e: Event) => e.preventDefault();
+    document.addEventListener("gesturestart", stop, { passive: false });
+    document.addEventListener("gesturechange", stop, { passive: false });
+    NAV.forEach((n) => router.prefetch(n.href));
+    return () => {
+      document.removeEventListener("gesturestart", stop);
+      document.removeEventListener("gesturechange", stop);
+    };
+  }, [router]);
+
   useEffect(() => {
     setOpen(false);
     setAdd(false);
@@ -55,7 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Icon name="menu" className="w-6 h-6" />
           </button>
           <span className="text-center text-base font-medium">{current.label}</span>
-          <Link href="/" aria-label="בית" className="w-10 h-10 grid place-items-center rounded-full hover:bg-ink/10">
+          <Link prefetch href="/" aria-label="בית" className="w-10 h-10 grid place-items-center rounded-full hover:bg-ink/10">
             <Icon name="home" className="w-6 h-6" />
           </Link>
         </div>
@@ -81,7 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const active = n.href === path;
             return (
               <li key={n.href}>
-                <Link
+                <Link prefetch
                   href={n.href}
                   tabIndex={open ? 0 : -1}
                   className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition-colors ${active ? "bg-brand text-onbrand" : "hover:bg-subtle text-ink"}`}
@@ -117,7 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className={`paper fixed z-40 bottom-[calc(100px+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 w-56 bg-surface rounded-2xl p-2 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.4)] transition-all duration-200 ${add ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}
       >
         {ADD.map((a) => (
-          <Link key={a.label} href={a.href} tabIndex={add ? 0 : -1} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-subtle text-sm">
+          <Link prefetch key={a.label} href={a.href} tabIndex={add ? 0 : -1} className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-subtle text-sm">
             <span className="w-8 h-8 grid place-items-center rounded-full bg-subtle text-brand">
               <Icon name={a.icon} className="w-4 h-4" />
             </span>
@@ -170,7 +182,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
 function Tab({ href, label, icon, active }: { href: string; label: string; icon: IconName; active: boolean }) {
   return (
-    <Link href={href} className={`flex flex-col items-center gap-1 text-[11px] ${active ? "text-brand font-medium" : "text-muted"}`}>
+    <Link prefetch href={href} className={`flex flex-col items-center gap-1 text-[11px] ${active ? "text-brand font-medium" : "text-muted"}`}>
       <Icon name={icon} className="w-5 h-5" />
       {label}
     </Link>

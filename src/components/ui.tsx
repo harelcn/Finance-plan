@@ -109,7 +109,7 @@ export function RowList({ children, empty }: { children: React.ReactNode; empty?
 
 export function QuickAction({ href, icon, label }: { href: string; icon: IconName; label: string }) {
   return (
-    <Link href={href} className="flex flex-col items-center gap-2 group">
+    <Link prefetch href={href} className="flex flex-col items-center gap-2 group">
       <span className="w-14 h-14 grid place-items-center rounded-2xl bg-chip/15 text-ink group-hover:bg-chip/25 group-active:scale-95 transition">
         <Icon name={icon} className="w-6 h-6" />
       </span>
@@ -120,7 +120,7 @@ export function QuickAction({ href, icon, label }: { href: string; icon: IconNam
 
 export function MoreLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="flex items-center gap-1 text-xs text-ink font-medium hover:opacity-80">
+    <Link prefetch href={href} className="flex items-center gap-1 text-xs text-ink font-medium hover:opacity-80">
       {children}
       <Icon name="chevron" className="w-3.5 h-3.5" />
     </Link>
