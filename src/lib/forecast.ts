@@ -36,7 +36,7 @@ export function targetFor(targets: Target[], kind: TargetKind, ym: string): numb
 const sumAmounts = (xs: { amount: number }[]) => xs.reduce((s, x) => s + x.amount, 0);
 const sumDue = (xs: ForecastEvent[]) => xs.reduce((s, e) => s + e.due, 0);
 
-/** A standing order's charge in `ym`; linked expenses dated in that month pay it down. */
+/** A standing order's charge in `ym`. Not linked — once its date passes it is assumed recorded. */
 function standingEvents(orders: StandingOrder[], ym: string): ForecastEvent[] {
   const out: ForecastEvent[] = [];
   for (const o of orders) {
@@ -44,8 +44,7 @@ function standingEvents(orders: StandingOrder[], ym: string): ForecastEvent[] {
     if (o.end && ymOf(o.end) < ym) continue;
     const date = dateInMonth(ym, Number(o.start.slice(8, 10)));
     if (date < o.start || (o.end && date > o.end)) continue;
-    const paid = sumAmounts((o.payments ?? []).filter((p) => ymOf(p.date) === ym));
-    out.push({ itemId: o.id, date, name: o.name, amount: o.amount, due: Math.max(0, o.amount - paid), kind: "standing" });
+    out.push({ itemId: o.id, date, name: o.name, amount: o.amount, due: o.amount, kind: "standing" });
   }
   return out;
 }
@@ -84,25 +83,17 @@ export function eventsInMonth(s: PlanSettings, ym: string): ForecastEvent[] {
   ].sort((a, b) => a.date.localeCompare(b.date));
 }
 
-/**
- * Charges whose date already passed but no linked expense covers them yet ("טרם יצא").
- * Planned installments from any month; standing orders only for the current month.
- */
+/** Planned installments whose date passed with no linked expense covering them ("טרם יצא"). */
 export function overdueEvents(s: PlanSettings, today: string): ForecastEvent[] {
-  const ym = ymOf(today);
-  return [
-    ...standingEvents(s.standing, ym),
-    ...s.planned.flatMap(plannedSchedule),
-  ]
+  return s.planned
+    .flatMap(plannedSchedule)
     .filter((e) => e.date <= today && e.due > 0)
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-/** Expenses in `ym` that were linked to a plan item (so they are not variable spending). */
+/** Expenses in `ym` linked to a planned expense (so they are not variable spending). */
 export function linkedInMonth(s: PlanSettings, ym: string): number {
-  return sumAmounts(
-    [...s.planned, ...s.standing].flatMap((i) => i.payments ?? []).filter((p) => ymOf(p.date) === ym),
-  );
+  return sumAmounts(s.planned.flatMap((i) => i.payments ?? []).filter((p) => ymOf(p.date) === ym));
 }
 
 export interface MonthPlan {
@@ -112,7 +103,7 @@ export interface MonthPlan {
   expenseTarget: number; // variable target + every planned/standing charge scheduled in the month
   recordedClosings: number;
   recordedExpenses: number;
-  /** Recorded expenses that are not linked to any plan item. */
+  /** Recorded expenses minus linked planned expenses and standing charges already past. */
   variableRecorded: number;
   /** Income still expected after `today` (target minus what is already closed). */
   incomeRemaining: number;
@@ -140,10 +131,12 @@ export function planMonth(input: ForecastInput, ym: string): MonthPlan {
     ...(isCurrent ? overdueEvents(input, input.today) : []),
     ...events.filter((e) => e.due > 0 && dayNum(e.date) > today),
   ];
+  // standing orders already charged this month sit inside the recorded expenses
+  const standingPast = sumAmounts(events.filter((e) => e.kind === "standing" && dayNum(e.date) <= today));
   const incomeTarget = targetFor(input.targets, "income", ym);
   const variableTarget = targetFor(input.targets, "expense", ym);
   const rec = input.actuals[ym] ?? { closings: 0, expenses: 0 };
-  const variableRecorded = Math.max(0, rec.expenses - linkedInMonth(input, ym));
+  const variableRecorded = Math.max(0, rec.expenses - linkedInMonth(input, ym) - standingPast);
 
   const windowStart = Math.max(today, dayNum(monthStart(ym)) - 1);
   const windowEnd = dayNum(monthEnd(ym));

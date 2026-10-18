@@ -22,14 +22,16 @@ export default async function PlannedPage() {
 
   const status = (i: (typeof items)[number]) => {
     const n = i.schedule.length;
-    if (i.remaining === 0) return "שולם במלואו ✓";
-    if (i.overdue > 0) return n > 1 ? `שולמו ${i.paidCount}/${n} · ${i.overdue} טרם יצאו` : "התאריך עבר · טרם יצא";
-    return n > 1 ? `שולמו ${i.paidCount}/${n}` : `מתוכנן ל-${dateLabel(i.p.date)}`;
+    if (i.remaining === 0) return "יצא במלואו ✓";
+    const paid = i.p.amount - i.remaining;
+    const partial = paid > 0 ? `יצא חלקית ${fmt(paid)} · ` : "";
+    if (i.overdue > 0) return partial + (n > 1 ? `${i.overdue} תשלומים טרם יצאו` : "התאריך עבר · טרם יצא");
+    return partial + (n > 1 ? `שולמו ${i.paidCount}/${n}` : `מתוכנן ל-${dateLabel(i.p.date)}`);
   };
 
   return (
     <>
-      <PageTitle title="הוצאות מתוכננות" subtitle="כשההוצאה יוצאת — רשום אותה בהוצאות ב-Notion ובחר אותה ב״שיוך לתכנון״" />
+      <PageTitle title="הוצאות מתוכננות" subtitle="כשמשהו יוצא — רשום בהוצאות ב-Notion ובחר ב״שיוך להוצאה מתוכננת״" />
 
       <AddSheet label="הוצאה חדשה">
         <PlannedForm today={today} />
@@ -55,7 +57,7 @@ export default async function PlannedPage() {
       </Card>
 
       {done.length > 0 && (
-        <Card title="שולמו">
+        <Card title="יצאו">
           <RowList>
             {done.map((i) => (
               <Row
@@ -64,6 +66,7 @@ export default async function PlannedPage() {
                 title={i.p.name}
                 subtitle={status(i)}
                 amount={-i.p.amount}
+                done
                 action={<DeleteButton id={i.p.id} />}
               />
             ))}

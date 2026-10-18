@@ -85,28 +85,39 @@ describe("planMonth", () => {
     expect(p.standingUpcoming).toBe(4_000);
     expect(p.variableRemaining).toBe(0);
   });
-  it("does not re-charge a past charge that is linked to a real expense", () => {
+  it("treats a standing charge whose date passed as already recorded, not variable spending", () => {
     const p = planMonth(
       {
         ...base,
         actuals: { "2026-10": { closings: 0, expenses: 100 } },
-        standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null, payments: [{ date: "2026-10-05", amount: 100 }] }],
+        standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null }],
       },
       "2026-10",
     );
     expect(p.upcoming).toHaveLength(0);
     expect(p.expenseTarget).toBe(3_100);
-    // the linked 100 is not variable spending
     expect(p.variableRecorded).toBe(0);
     expect(p.variableRemaining).toBe(3_000);
   });
-  it("keeps a past, unlinked charge as overdue (טרם יצא)", () => {
+  it("keeps a past planned expense with no linked expense as overdue (טרם יצא)", () => {
     const p = planMonth(
-      { ...base, standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null }] },
+      { ...base, planned: [{ id: "p", name: "מזגן", amount: 2_000, date: "2026-10-05", installments: 1 }] },
       "2026-10",
     );
     expect(p.upcoming).toHaveLength(1);
-    expect(p.standingUpcoming).toBe(100);
+    expect(p.plannedUpcoming).toBe(2_000);
+  });
+  it("linked planned expenses are not variable spending", () => {
+    const p = planMonth(
+      {
+        ...base,
+        actuals: { "2026-10": { closings: 0, expenses: 2_500 } },
+        planned: [{ id: "p", name: "מזגן", amount: 2_000, date: "2026-10-05", installments: 1, payments: [{ date: "2026-10-06", amount: 2_000 }] }],
+      },
+      "2026-10",
+    );
+    expect(p.plannedUpcoming).toBe(0);
+    expect(p.variableRecorded).toBe(500);
   });
 });
 
@@ -116,6 +127,10 @@ describe("linked payments", () => {
     planned: [{ id: "w", name: "חתונה", amount: 9_000, date: "2026-09-10", installments: 3, payments }],
   });
 
+  it("partial payment leaves the rest due", () => {
+    const s = { ...base, planned: [{ id: "x", name: "רכב", amount: 20_000, date: "2026-12-01", installments: 1, payments: [{ date: "2026-10-01", amount: 5_000 }] }] };
+    expect(eventsInMonth(s, "2026-12")[0].due).toBe(15_000);
+  });
   it("marks installments paid in order", () => {
     const s = planned([{ date: "2026-09-10", amount: 3_000 }]);
     expect(overdueEvents(s, base.today)).toHaveLength(1); // Oct 10 installment not linked yet

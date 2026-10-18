@@ -9,12 +9,12 @@ export const DB_IDS = {
   PAYMENTS: "2f97fd3b-679b-8067-8f5f-cd38c04bb7b8",
   EXPENSES: "2827fd3b-679b-80fb-b609-e1182a8b8633",
   CLOSINGS: "2dd7fd3b-679b-8034-b8d9-df3e7f3d0c3d",
-  PLAN: "62536665-e0cf-4c0e-94f2-21e34be0c2fb",
+  PLAN: "62536665-e0cf-4c0e-94f2-21e34be0c2fb", // targets + standing orders
+  PLANNED: "545b8a52-e026-4ea3-bdac-6f585973bd3f", // planned expenses (linked from הוצאות)
 } as const;
 
 export const PLAN_TYPES = {
   income: "יעד הכנסה",
   expense: "יעד הוצאה",
-  planned: "הוצאה מתוכננת",
   standing: "הוראת קבע",
 } as const;

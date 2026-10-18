@@ -41,7 +41,7 @@ export interface ActualsData {
   balance: BalanceBreakdown;
   monthly: MonthlyActuals;
   openClosings: Array<{ name: string; amount: number; date: string }>;
-  /** Expenses linked via "שיוך לתכנון", keyed by plan-row id. */
+  /** Expenses linked via "שיוך להוצאה מתוכננת", keyed by planned-expense id. */
   links: Record<string, LinkedPayment[]>;
 }
 
@@ -71,7 +71,7 @@ export async function getActuals(): Promise<ActualsData> {
     expensesTotal += amount;
     if (!date) continue;
     bucket(date).expenses += amount;
-    for (const rel of r.properties["שיוך לתכנון"]?.relation ?? []) {
+    for (const rel of r.properties["שיוך להוצאה מתוכננת"]?.relation ?? []) {
       (links[rel.id] ??= []).push({ date, amount });
     }
   }

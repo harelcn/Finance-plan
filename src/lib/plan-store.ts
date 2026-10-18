@@ -4,10 +4,27 @@ import type { PlanSettings, PlannedExpense, StandingOrder, Target } from "./type
 
 const text = (p: any): string => p?.title?.[0]?.plain_text ?? p?.rich_text?.[0]?.plain_text ?? ""; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-/** Reads every active row of the "תכנון פיננסי" Notion database. */
+/** Targets + standing orders from "תכנון פיננסי", planned expenses from "הוצאות מתוכננות". */
 export async function getPlan(): Promise<PlanSettings> {
-  const rows = await queryAll(DB_IDS.PLAN, { property: "פעיל", checkbox: { equals: true } });
+  const [rows, plannedRows] = await Promise.all([
+    queryAll(DB_IDS.PLAN, { property: "פעיל", checkbox: { equals: true } }),
+    queryAll(DB_IDS.PLANNED),
+  ]);
   const plan: PlanSettings = { targets: [], planned: [], standing: [] };
+
+  for (const r of plannedRows) {
+    const p = r.properties;
+    const date: string = p["תאריך"]?.date?.start?.slice(0, 10) ?? "";
+    if (!date) continue;
+    plan.planned.push({
+      id: r.id,
+      name: text(p["Name"]),
+      amount: p["סכום"]?.number ?? 0,
+      date,
+      installments: p["תשלומים"]?.number ?? 1,
+      notes: text(p["Notes"]),
+    });
+  }
 
   for (const r of rows) {
     const p = r.properties;
@@ -20,8 +37,6 @@ export async function getPlan(): Promise<PlanSettings> {
 
     if (type === PLAN_TYPES.income || type === PLAN_TYPES.expense) {
       plan.targets.push({ id: r.id, kind: type === PLAN_TYPES.income ? "income" : "expense", amount, from: date });
-    } else if (type === PLAN_TYPES.planned) {
-      plan.planned.push({ id: r.id, name, amount, date, installments: p["תשלומים"]?.number ?? 1, notes });
     } else if (type === PLAN_TYPES.standing) {
       const end: string | null = p["תאריך סיום"]?.date?.start?.slice(0, 10) ?? null;
       plan.standing.push({ id: r.id, name, amount, start: date, end, notes });
@@ -51,14 +66,12 @@ export async function createTarget(t: Omit<Target, "id">) {
 
 export async function createPlanned(p: Omit<PlannedExpense, "id">) {
   await notion.pages.create({
-    parent: { database_id: DB_IDS.PLAN },
+    parent: { database_id: DB_IDS.PLANNED },
     properties: {
       Name: { title: [{ text: { content: p.name } }] },
-      "סוג": { select: { name: PLAN_TYPES.planned } },
       "סכום": { number: p.amount },
       "תאריך": dateProp(p.date),
       "תשלומים": { number: p.installments },
-      "פעיל": { checkbox: true },
       Notes: { rich_text: p.notes ? [{ text: { content: p.notes } }] : [] },
     },
   });

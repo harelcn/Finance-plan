@@ -9,9 +9,8 @@ export const loadData = cache(async () => {
   const today = todayIL();
   const [actuals, rawPlan] = await Promise.all([getActuals(), getPlan()]);
 
-  // attach the real expenses linked to each plan item ("שיוך לתכנון")
-  const linked = <T extends { id: string }>(item: T) => ({ ...item, payments: actuals.links[item.id] ?? [] });
-  const plan = { ...rawPlan, planned: rawPlan.planned.map(linked), standing: rawPlan.standing.map(linked) };
+  // attach the real expenses linked to each planned expense ("שיוך להוצאה מתוכננת")
+  const plan = { ...rawPlan, planned: rawPlan.planned.map((p) => ({ ...p, payments: actuals.links[p.id] ?? [] })) };
 
   const input: ForecastInput = {
     ...plan,

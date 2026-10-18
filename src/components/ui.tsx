@@ -74,20 +74,22 @@ export function Line({ label, value, muted, strong }: { label: React.ReactNode; 
 }
 
 /** Bank-style list row: icon bubble, title + subtitle, amount on the left. */
-export function Row({ icon, title, subtitle, amount, amountNote, action }: {
+export function Row({ icon, title, subtitle, amount, amountNote, action, done }: {
   icon: IconName; title: string; subtitle?: string; amount: number; amountNote?: string; action?: React.ReactNode;
+  /** Fully settled: greyed out with a strike-through. */
+  done?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3 py-3">
+    <div className={`flex items-center gap-3 py-3 ${done ? "opacity-40 [&_.strike]:line-through" : ""}`}>
       <span className="w-10 h-10 shrink-0 grid place-items-center rounded-full bg-white/5 text-zinc-300">
         <Icon name={icon} />
       </span>
       <span className="flex-1 min-w-0">
-        <span className="block text-sm truncate">{title}</span>
+        <span className="strike block text-sm truncate">{title}</span>
         {subtitle && <span className="block text-xs text-zinc-500 truncate">{subtitle}</span>}
       </span>
       <span className="text-left">
-        <span className="block text-sm num">{fmt(amount)}</span>
+        <span className="strike block text-sm num">{fmt(amount)}</span>
         {amountNote && <span className="block text-[11px] text-zinc-500">{amountNote}</span>}
       </span>
       {action}
