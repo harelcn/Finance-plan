@@ -238,6 +238,9 @@ export interface TrackingRow {
   /** expense target − expenses: positive = spent less than planned. */
   expenseDelta: number;
   cumulativeExpenseDelta: number;
+  /** A month without a target shows actuals only and stays out of the running deltas. */
+  hasIncomeTarget: boolean;
+  hasExpenseTarget: boolean;
 }
 
 /** Target vs. actual for every month from `fromYm` through the current month. */
@@ -246,12 +249,13 @@ export function tracking(input: ForecastInput, fromYm: string): TrackingRow[] {
   let cumExpense = 0;
   return monthsBetween(fromYm, ymOf(input.today)).map((ym) => {
     const incomeTarget = targetFor(input.targets, "income", ym);
-    const expenseTarget =
-      targetFor(input.targets, "expense", ym) +
-      eventsInMonth(input, ym).reduce((s, e) => s + e.amount, 0);
+    const variableTarget = targetFor(input.targets, "expense", ym);
+    const expenseTarget = variableTarget + eventsInMonth(input, ym).reduce((s, e) => s + e.amount, 0);
     const rec = input.actuals[ym] ?? { closings: 0, expenses: 0 };
-    const incomeDelta = rec.closings - incomeTarget;
-    const expenseDelta = expenseTarget - rec.expenses;
+    const hasIncomeTarget = incomeTarget > 0;
+    const hasExpenseTarget = variableTarget > 0;
+    const incomeDelta = hasIncomeTarget ? rec.closings - incomeTarget : 0;
+    const expenseDelta = hasExpenseTarget ? expenseTarget - rec.expenses : 0;
     cumIncome += incomeDelta;
     cumExpense += expenseDelta;
     return {
@@ -264,6 +268,8 @@ export function tracking(input: ForecastInput, fromYm: string): TrackingRow[] {
       expenses: rec.expenses,
       expenseDelta,
       cumulativeExpenseDelta: cumExpense,
+      hasIncomeTarget,
+      hasExpenseTarget,
     };
   });
 }

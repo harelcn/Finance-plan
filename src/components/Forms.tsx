@@ -29,7 +29,7 @@ function FormError({ state }: { state: ActionState }) {
   return state.error ? <p className="text-xs text-zinc-300">⚠ {state.error}</p> : null;
 }
 
-export function TargetForm({ today }: { today: string }) {
+export function TargetForm({ today, defaultFrom }: { today: string; defaultFrom?: string }) {
   const [state, action, pending] = useActionState(addTarget, {});
   const ref = useResetOnSuccess(state);
   return (
@@ -49,7 +49,7 @@ export function TargetForm({ today }: { today: string }) {
         </label>
         <label className={label}>
           <span>החל מ־</span>
-          <input name="from" type="date" defaultValue={`${today.slice(0, 7)}-01`} className={input} required />
+          <input name="from" type="date" defaultValue={defaultFrom ?? `${today.slice(0, 7)}-01`} className={input} required />
         </label>
       </div>
       <FormError state={state} />

@@ -1,3 +1,4 @@
+import { AddSheet, TargetForm } from "@/components/Forms";
 import { Amount, Card, PageTitle, TargetBar } from "@/components/ui";
 import { TRACKING_START } from "@/lib/config";
 import { monthLabel } from "@/lib/dates";
@@ -7,15 +8,29 @@ import { loadData } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
+function Actual({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex justify-between items-baseline text-xs">
+      <span className="text-zinc-400">{label}</span>
+      <span>
+        <span className="num text-zinc-200">{fmt(value)}</span>
+        <span className="text-zinc-600"> · לא הוגדר יעד</span>
+      </span>
+    </div>
+  );
+}
+
 export default async function TrackingPage() {
-  const { input } = await loadData();
+  const { input, today } = await loadData();
   const rows = tracking(input, TRACKING_START).reverse();
   const cumIncome = rows[0]?.cumulativeIncomeDelta ?? 0;
   const cumExpense = rows[0]?.cumulativeExpenseDelta ?? 0;
+  const firstTargeted = [...rows].reverse().find((r) => r.hasIncomeTarget || r.hasExpenseTarget);
+  const missing = rows.some((r) => !r.hasIncomeTarget || !r.hasExpenseTarget);
 
   return (
     <>
-      <PageTitle title="יעד מול ביצוע" subtitle={`הכנסות מול יעד הכנסה · הוצאות מול יעד הוצאה · מאז ${monthLabel(TRACKING_START)}`} />
+      <PageTitle title="יעד מול ביצוע" subtitle="נתונים מ-Notion · הכנסות מול יעד הכנסה · הוצאות מול יעד הוצאה" />
 
       <div className="grid grid-cols-2 gap-3">
         <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">
@@ -26,24 +41,41 @@ export default async function TrackingPage() {
         <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">
           <p className="text-[11px] text-zinc-400">הוצאות מול היעד</p>
           <Amount value={cumExpense} size="text-2xl" />
-          <p className="text-[11px] text-zinc-500">{cumExpense >= 0 ? "חסכת מתחת ליעד" : "חרגת מהיעד"}</p>
+          <p className="text-[11px] text-zinc-500">{cumExpense >= 0 ? "מתחת ליעד" : "חרגת מהיעד"}</p>
         </div>
       </div>
+      {firstTargeted && (
+        <p className="text-[11px] text-zinc-500 -mt-2">הפער נספר רק בחודשים שיש להם יעד (מ-{monthLabel(firstTargeted.month)})</p>
+      )}
+
+      {missing && (
+        <AddSheet label="הגדר יעד גם לחודשים קודמים">
+          <TargetForm today={today} defaultFrom={`${TRACKING_START}-01`} />
+        </AddSheet>
+      )}
 
       {rows.map((t) => (
         <Card key={t.month} title={monthLabel(t.month)}>
-          <div className="space-y-1.5">
-            <TargetBar label="הכנסות (סגירות)" actual={t.closings} target={t.incomeTarget} />
-            <p className={`text-[11px] ${t.incomeDelta >= 0 ? "text-white" : "text-zinc-500"}`}>
-              <span className="num">{fmt(Math.abs(t.incomeDelta))}</span> {t.incomeDelta >= 0 ? "מעל יעד ההכנסה" : "מתחת ליעד ההכנסה"}
-            </p>
-          </div>
-          <div className="space-y-1.5">
-            <TargetBar label="הוצאות" actual={t.expenses} target={t.expenseTarget} invert />
-            <p className={`text-[11px] ${t.expenseDelta >= 0 ? "text-white" : "text-zinc-500"}`}>
-              <span className="num">{fmt(Math.abs(t.expenseDelta))}</span> {t.expenseDelta >= 0 ? "מתחת ליעד ההוצאה" : "מעל יעד ההוצאה"}
-            </p>
-          </div>
+          {t.hasIncomeTarget ? (
+            <div className="space-y-1.5">
+              <TargetBar label="הכנסות (סגירות)" actual={t.closings} target={t.incomeTarget} />
+              <p className={`text-[11px] ${t.incomeDelta >= 0 ? "text-white" : "text-zinc-500"}`}>
+                <span className="num">{fmt(Math.abs(t.incomeDelta))}</span> {t.incomeDelta >= 0 ? "מעל יעד ההכנסה" : "מתחת ליעד ההכנסה"}
+              </p>
+            </div>
+          ) : (
+            <Actual label="הכנסות (סגירות)" value={t.closings} />
+          )}
+          {t.hasExpenseTarget ? (
+            <div className="space-y-1.5">
+              <TargetBar label="הוצאות" actual={t.expenses} target={t.expenseTarget} invert />
+              <p className={`text-[11px] ${t.expenseDelta >= 0 ? "text-white" : "text-zinc-500"}`}>
+                <span className="num">{fmt(Math.abs(t.expenseDelta))}</span> {t.expenseDelta >= 0 ? "מתחת ליעד ההוצאה" : "מעל יעד ההוצאה"}
+              </p>
+            </div>
+          ) : (
+            <Actual label="הוצאות" value={t.expenses} />
+          )}
         </Card>
       ))}
     </>

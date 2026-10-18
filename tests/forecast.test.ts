@@ -210,4 +210,18 @@ describe("tracking", () => {
     expect(rows[1].cumulativeExpenseDelta).toBe(-1_000);
     expect(rows.at(-1)!.month).toBe("2026-10");
   });
+  it("leaves months without a target out of the running deltas", () => {
+    const rows = tracking(
+      {
+        ...base,
+        targets: [{ id: "i", kind: "income", amount: 10_000, from: "2026-08-01" }],
+        actuals: { "2026-07": { closings: 50_000, expenses: 1_000 }, "2026-08": { closings: 9_000, expenses: 0 } },
+      },
+      "2026-07",
+    );
+    expect(rows[0].hasIncomeTarget).toBe(false);
+    expect(rows[0].incomeDelta).toBe(0);
+    expect(rows[1].cumulativeIncomeDelta).toBe(-1_000);
+    expect(rows[1].hasExpenseTarget).toBe(false);
+  });
 });
