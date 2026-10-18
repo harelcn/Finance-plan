@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "תכנון פיננסי",
   description: "תחזית יתרה, יעדים חודשיים, הוצאות מתוכננות והוראות קבע",
-  // All icons are generated from public/idon2.png (the app's one icon).
+  // All icons are generated from public/icon3.png (the app's one icon).
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
