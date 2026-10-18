@@ -103,6 +103,9 @@ export async function getActuals(): Promise<ActualsData> {
       payments: paymentsTotal,
       expenses: expensesTotal,
       openClosings: openTotal,
+      // the portfolio is added in data.ts, once deposits and market prices are known
+      deposits: 0,
+      portfolio: 0,
       total: BASE_AMOUNT + paymentsTotal - expensesTotal + openTotal,
     },
     monthly,

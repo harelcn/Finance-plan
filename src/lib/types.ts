@@ -50,7 +50,30 @@ export interface BalanceBreakdown {
   payments: number;
   expenses: number;
   openClosings: number;
+  /** Money moved into the investment portfolio (not an expense). */
+  deposits: number;
+  /** Market value of the portfolio today. */
+  portfolio: number;
   total: number;
+}
+
+/** An ETF in the portfolio, priced from the Tel Aviv Stock Exchange by security number. */
+export interface Fund {
+  id: string;
+  name: string;
+  securityId: string;
+  monthly: number;
+  day: number | null;
+}
+
+export interface Deposit {
+  id: string;
+  fundId: string;
+  amount: number; // ₪
+  date: string; // YYYY-MM-DD
+  /** Actual units bought, when known; otherwise derived from the closing price on `date`. */
+  units: number | null;
+  notes?: string;
 }
 
 export interface ForecastEvent {

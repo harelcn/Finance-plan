@@ -5,10 +5,10 @@ import type { PlannedExpense, StandingOrder, Target } from "@/lib/types";
 import { Icon } from "./Icon";
 
 // 16px text: iOS zooms into any field smaller than that.
-const input = "field bg-surface border border-line rounded-xl px-3 h-12 text-base w-full min-w-0 focus:outline-none focus:border-brand";
-const label = "text-xs text-muted space-y-1.5 block";
+export const input = "field bg-surface border border-line rounded-xl px-3 h-12 text-base w-full min-w-0 focus:outline-none focus:border-brand";
+export const label = "text-xs text-muted space-y-1.5 block";
 
-function Submit({ pending, children }: { pending: boolean; children: React.ReactNode }) {
+export function Submit({ pending, children }: { pending: boolean; children: React.ReactNode }) {
   return (
     <button
       type="submit"
@@ -21,7 +21,7 @@ function Submit({ pending, children }: { pending: boolean; children: React.React
 }
 
 /** Resets a create form after a successful save, or closes an edit form via `onDone`. */
-function useAfterSuccess(state: ActionState, onDone?: () => void) {
+export function useAfterSuccess(state: ActionState, onDone?: () => void) {
   const ref = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (!state.ok) return;
@@ -31,7 +31,7 @@ function useAfterSuccess(state: ActionState, onDone?: () => void) {
   return ref;
 }
 
-function FormError({ state }: { state: ActionState }) {
+export function FormError({ state }: { state: ActionState }) {
   return state.error ? <p className="text-xs text-danger">⚠ {state.error}</p> : null;
 }
 

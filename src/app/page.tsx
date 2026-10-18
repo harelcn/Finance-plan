@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ForecastChart } from "@/components/ForecastChart";
 import { Amount, Card, MoreLink, QuickAction, Row, RowList, TargetBar } from "@/components/ui";
 import { FORECAST_MONTHS } from "@/lib/config";
@@ -9,9 +10,9 @@ import { loadData } from "@/lib/data";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { today, actuals, input } = await loadData();
+  const { today, actuals, input, portfolio } = await loadData();
   const b = actuals.balance;
-  const inAccount = b.base + b.payments - b.expenses;
+  const inAccount = b.base + b.payments - b.expenses - b.deposits;
   const now = planMonth(input, ymOf(today));
   const rows = forecastMonths(input, FORECAST_MONTHS);
   const yearEnd = rows[rows.length - 1];
@@ -32,15 +33,19 @@ export default async function Home() {
           <span className="text-[11px] text-muted">{dateLabel(today)}</span>
         </div>
         <Amount value={b.total} size="text-5xl" />
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-chip/10 border border-line px-4 py-3">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-2xl bg-chip/10 border border-line px-3 py-3 min-w-0">
             <p className="text-[11px] text-muted">בחשבון</p>
             <p className="text-base num">{fmt(inAccount)}</p>
           </div>
-          <div className="rounded-2xl bg-chip/10 border border-line px-4 py-3">
-            <p className="text-[11px] text-muted">סגירות פתוחות · {actuals.openClosings.length}</p>
+          <div className="rounded-2xl bg-chip/10 border border-line px-3 py-3 min-w-0">
+            <p className="text-[11px] text-muted truncate">סגירות · {actuals.openClosings.length}</p>
             <p className="text-base num">{fmt(b.openClosings)}</p>
           </div>
+          <Link prefetch href="/portfolio" className="rounded-2xl bg-chip/10 border border-line px-3 py-3 min-w-0">
+            <p className="text-[11px] text-muted truncate">תיק השקעות</p>
+            <p className="text-base num truncate">{fmt(portfolio.value)}</p>
+          </Link>
         </div>
         <details className="group text-xs text-muted">
           <summary className="cursor-pointer list-none hover:text-ink">איך זה מחושב ▾</summary>
@@ -49,6 +54,8 @@ export default async function Home() {
             <p>+ תשלומים שנכנסו · {fmt(b.payments)}</p>
             <p>− הוצאות (מ-1.6) · {fmt(b.expenses)}</p>
             <p>+ סגירות פתוחות · {fmt(b.openClosings)}</p>
+            {b.deposits > 0 && <p>− הפקדות להשקעות · {fmt(b.deposits)}</p>}
+            {b.deposits > 0 && <p>+ שווי תיק ההשקעות היום · {fmt(b.portfolio)}</p>}
           </div>
         </details>
       </section>
@@ -58,7 +65,7 @@ export default async function Home() {
         <QuickAction href="/forecast" icon="chart" label="תחזית" />
         <QuickAction href="/planned" icon="calendar" label="הוצאה מתוכננת" />
         <QuickAction href="/standing" icon="repeat" label="הוראת קבע" />
-        <QuickAction href="/targets" icon="sliders" label="יעדים" />
+        <QuickAction href="/portfolio" icon="wallet" label="השקעות" />
       </div>
 
       {/* ───── This month ───── */}

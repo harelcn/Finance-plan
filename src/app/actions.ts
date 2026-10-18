@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NOTION_TAG } from "@/lib/data";
+import { createDeposit, getFunds, updateDeposit, updateFundPlan } from "@/lib/portfolio-store";
 import {
   archiveRow,
   createPlanned,
@@ -97,4 +98,31 @@ export async function removeRow(id: string): Promise<ActionState> {
 export async function refreshData(): Promise<void> {
   revalidateTag(NOTION_TAG);
   revalidatePath("/", "layout");
+}
+
+export async function saveDeposit(_: ActionState, fd: FormData): Promise<ActionState> {
+  const fundId = String(fd.get("fundId") ?? "");
+  const amount = readAmount(fd);
+  const date = readDate(fd, "date");
+  const unitsRaw = String(fd.get("units") ?? "").trim();
+  const units = unitsRaw ? Number(unitsRaw.replace(/[,\s]/g, "")) : null;
+  if (!ID_RE.test(fundId) || !amount || !date) return { error: "צריך קרן, סכום ותאריך" };
+  if (units !== null && !(Number.isFinite(units) && units > 0)) return { error: "מספר יחידות לא תקין" };
+  const fund = (await getFunds()).find((f) => f.id === fundId);
+  if (!fund) return { error: "הקרן לא נמצאה" };
+  const id = readId(fd);
+  const d = { fundId, amount, date, units };
+  return run(() => (id ? updateDeposit(id, d, fund.name) : createDeposit(d, fund.name)));
+}
+
+export async function saveFundPlan(_: ActionState, fd: FormData): Promise<ActionState> {
+  const id = readId(fd);
+  const raw = String(fd.get("monthly") ?? "").replace(/[,₪\s]/g, "");
+  const monthly = raw === "" ? 0 : Number(raw);
+  const dayRaw = String(fd.get("day") ?? "").trim();
+  const day = dayRaw ? Math.round(Number(dayRaw)) : null;
+  if (!id) return { error: "מזהה לא תקין" };
+  if (!Number.isFinite(monthly) || monthly < 0) return { error: "סכום לא תקין" };
+  if (day !== null && !(day >= 1 && day <= 31)) return { error: "יום בין 1 ל-31" };
+  return run(() => updateFundPlan(id, monthly, day));
 }

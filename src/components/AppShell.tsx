@@ -8,6 +8,7 @@ import { Icon, type IconName } from "./Icon";
 export const NAV: Array<{ href: string; label: string; icon: IconName }> = [
   { href: "/", label: "מצב החשבון שלי", icon: "home" },
   { href: "/forecast", label: "תחזית", icon: "chart" },
+  { href: "/portfolio", label: "תיק השקעות", icon: "wallet" },
   { href: "/tracking", label: "יעד מול ביצוע", icon: "target" },
   { href: "/planned", label: "הוצאות מתוכננות", icon: "calendar" },
   { href: "/standing", label: "הוראות קבע", icon: "repeat" },
@@ -22,6 +23,7 @@ const TABS: Array<{ href: string; label: string; icon: IconName }> = [
 ];
 
 const ADD: Array<{ href: string; label: string; icon: IconName }> = [
+  { href: "/portfolio", label: "הפקדה להשקעות", icon: "wallet" },
   { href: "/planned", label: "הוצאה מתוכננת", icon: "calendar" },
   { href: "/standing", label: "הוראת קבע", icon: "repeat" },
   { href: "/targets", label: "עדכון יעד", icon: "sliders" },
