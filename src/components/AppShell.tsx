@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { refreshData } from "@/app/actions";
 import { Icon, type IconName } from "./Icon";
 
 export const NAV: Array<{ href: string; label: string; icon: IconName }> = [
@@ -30,6 +31,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [add, setAdd] = useState(false);
   const path = usePathname();
+  const router = useRouter();
+  const [refreshing, startRefresh] = useTransition();
   const current = NAV.find((n) => n.href === path) ?? NAV[0];
 
   useEffect(() => {
@@ -92,6 +95,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </ul>
+        <div className="p-3 border-t border-line">
+          <button
+            onClick={() => startRefresh(async () => { await refreshData(); router.refresh(); setOpen(false); })}
+            disabled={refreshing}
+            className="w-full flex items-center gap-3 rounded-2xl px-3 py-3 hover:bg-subtle text-ink disabled:opacity-60"
+          >
+            <span className={`w-9 h-9 grid place-items-center rounded-full bg-subtle text-brand ${refreshing ? "animate-spin" : ""}`}>
+              <Icon name="repeat" />
+            </span>
+            <span className="text-sm font-medium">{refreshing ? "מרענן…" : "רענן נתונים"}</span>
+          </button>
+        </div>
       </nav>
 
       <main className="max-w-xl mx-auto px-4 pt-3 pb-[calc(8rem+env(safe-area-inset-bottom))] space-y-4">{children}</main>

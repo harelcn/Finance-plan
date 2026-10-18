@@ -1,5 +1,6 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { NOTION_TAG } from "@/lib/data";
 import {
   archiveRow,
   createPlanned,
@@ -43,6 +44,7 @@ function readName(fd: FormData): string | null {
 async function run(fn: () => Promise<void>): Promise<ActionState> {
   try {
     await fn();
+    revalidateTag(NOTION_TAG);
     revalidatePath("/", "layout");
     return { ok: Date.now() };
   } catch (e) {
@@ -89,4 +91,10 @@ export async function addStanding(_: ActionState, fd: FormData): Promise<ActionS
 export async function removeRow(id: string): Promise<ActionState> {
   if (!ID_RE.test(id)) return { error: "מזהה לא תקין" };
   return run(() => archiveRow(id));
+}
+
+/** Drops the cached Notion snapshot so the next render reads fresh data (edits made in Notion). */
+export async function refreshData(): Promise<void> {
+  revalidateTag(NOTION_TAG);
+  revalidatePath("/", "layout");
 }
