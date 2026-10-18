@@ -4,14 +4,15 @@ import type { BalanceBreakdown, LinkedPayment, MonthlyActuals } from "./types";
 
 export const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
-/** Retries transient network / rate-limit failures with a short backoff. */
-async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
-  for (let i = 1; ; i++) {
+/** Retries transient network drops / rate limits: waits 0.5s, 1s, 2s, 3s (~6.5s total) before giving up. */
+const BACKOFF_MS = [500, 1000, 2000, 3000];
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let i = 0; ; i++) {
     try {
       return await fn();
     } catch (e) {
-      if (i >= attempts) throw e;
-      await new Promise((r) => setTimeout(r, 400 * i));
+      if (i >= BACKOFF_MS.length) throw e;
+      await new Promise((r) => setTimeout(r, BACKOFF_MS[i]));
     }
   }
 }
