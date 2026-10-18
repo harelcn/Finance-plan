@@ -13,6 +13,8 @@ export const DB_IDS = {
   PLANNED: "545b8a52-e026-4ea3-bdac-6f585973bd3f", // planned expenses + standing orders (linked from הוצאות)
   FUNDS: "ece752a6-c95a-4ea5-b6ff-6660425844bf", // investment funds (TASE security numbers + monthly plan)
   DEPOSITS: "244ad385-ad13-4ecb-979e-fe50def26f6c", // deposits into the portfolio (not expenses)
+  CLIENTS: "2a37fd3b-679b-80e0-92e9-f1bdc23ac938", // לידים ולקוחות (title "שם לקוח")
+  CATEGORIES: "2827fd3b-679b-81b9-b67b-decc4c0b2903", // expense categories (title "Name")
 } as const;
 
 export const PLAN_TYPES = {

@@ -76,6 +76,27 @@ export interface Deposit {
   notes?: string;
 }
 
+/** Row lists for the "פירוט הוצאות" / "פירוט הכנסות" screens, straight from Notion. */
+export interface ExpenseRow {
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
+  category: string;
+  /** Linked to a planned expense / standing order. */
+  planned: boolean;
+}
+
+export interface IncomeRow {
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
+  client: string;
+  /** Closings only: "שולם" / "לא שולם" / "שולם חלקית". */
+  status?: string;
+}
+
 export interface ForecastEvent {
   itemId: string;
   /** Scheduled charge date. */

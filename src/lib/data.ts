@@ -21,7 +21,7 @@ const notionSnapshot = unstable_cache(
     const [actuals, plan, funds, deposits] = await Promise.all([getActuals(), getPlan(), getFunds(), getDeposits()]);
     return { actuals, plan, funds, deposits };
   },
-  ["notion-snapshot"],
+  ["notion-snapshot-v2"], // bump when the snapshot shape changes (Vercel keeps the data cache across deploys)
   { revalidate: 60, tags: [NOTION_TAG] },
 );
 
