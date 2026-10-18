@@ -8,6 +8,12 @@ export interface Target {
   from: string; // YYYY-MM-DD
 }
 
+/** A real expense row in Notion that was linked ("שיוך לתכנון") to a plan item. */
+export interface LinkedPayment {
+  date: string;
+  amount: number;
+}
+
 /** Known future expense: one lump (installments = 1) or split into monthly installments. */
 export interface PlannedExpense {
   id: string;
@@ -16,6 +22,7 @@ export interface PlannedExpense {
   date: string; // first charge, YYYY-MM-DD
   installments: number;
   notes?: string;
+  payments?: LinkedPayment[];
 }
 
 /** Monthly fixed charge on the start date's day-of-month. */
@@ -26,6 +33,7 @@ export interface StandingOrder {
   start: string; // YYYY-MM-DD
   end: string | null;
   notes?: string;
+  payments?: LinkedPayment[];
 }
 
 export interface PlanSettings {
@@ -46,9 +54,14 @@ export interface BalanceBreakdown {
 }
 
 export interface ForecastEvent {
+  itemId: string;
+  /** Scheduled charge date. */
   date: string;
   name: string;
+  /** Scheduled amount for this charge. */
   amount: number;
+  /** Part of `amount` not yet covered by linked expenses. 0 = already went out. */
+  due: number;
   kind: "standing" | "planned";
   installment?: { index: number; of: number };
 }

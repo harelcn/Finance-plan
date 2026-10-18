@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { BASE_AMOUNT, DB_IDS, EXPENSES_START, PAYMENTS_START, TRACKING_START } from "./config";
-import type { BalanceBreakdown, MonthlyActuals } from "./types";
+import type { BalanceBreakdown, LinkedPayment, MonthlyActuals } from "./types";
 
 export const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -41,6 +41,8 @@ export interface ActualsData {
   balance: BalanceBreakdown;
   monthly: MonthlyActuals;
   openClosings: Array<{ name: string; amount: number; date: string }>;
+  /** Expenses linked via "שיוך לתכנון", keyed by plan-row id. */
+  links: Record<string, LinkedPayment[]>;
 }
 
 /**
@@ -62,11 +64,16 @@ export async function getActuals(): Promise<ActualsData> {
   const bucket = (date: string) => (monthly[date.slice(0, 7)] ??= { closings: 0, expenses: 0 });
 
   let expensesTotal = 0;
+  const links: Record<string, LinkedPayment[]> = {};
   for (const r of expenses) {
     const amount = num(r.properties["Amount"]?.number);
-    const date: string = r.properties["Date"]?.date?.start ?? "";
+    const date: string = r.properties["Date"]?.date?.start?.slice(0, 10) ?? "";
     expensesTotal += amount;
-    if (date) bucket(date).expenses += amount;
+    if (!date) continue;
+    bucket(date).expenses += amount;
+    for (const rel of r.properties["שיוך לתכנון"]?.relation ?? []) {
+      (links[rel.id] ??= []).push({ date, amount });
+    }
   }
 
   for (const r of closings) {
@@ -99,5 +106,6 @@ export async function getActuals(): Promise<ActualsData> {
     },
     monthly,
     openClosings,
+    links,
   };
 }

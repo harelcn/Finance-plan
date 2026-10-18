@@ -9,14 +9,23 @@ export const dynamic = "force-dynamic";
 
 export default async function StandingPage() {
   const { today, plan, input } = await loadData();
-  const nextYm = addMonths(ymOf(today), 1);
+  const ym = ymOf(today);
+  const nextYm = addMonths(ym, 1);
+  const thisMonth = eventsInMonth(input, ym).filter((e) => e.kind === "standing");
   const nextMonth = eventsInMonth(input, nextYm)
     .filter((e) => e.kind === "standing")
     .reduce((s, e) => s + e.amount, 0);
 
+  const statusOf = (id: string) => {
+    const e = thisMonth.find((x) => x.itemId === id);
+    if (!e) return "לא פעילה החודש";
+    if (e.due === 0) return "יצאה החודש ✓";
+    return e.date <= today ? `טרם יצאה (היה ב-${dateLabel(e.date)})` : `תצא ב-${dateLabel(e.date)}`;
+  };
+
   return (
     <>
-      <PageTitle title="הוראות קבע" subtitle="נרשמות גם בהוצאות ב-Notion כשהן יורדות — כאן הן לתחזית" />
+      <PageTitle title="הוראות קבע" subtitle="כשהיא יורדת — רשום בהוצאות ב-Notion ובחר אותה ב״שיוך לתכנון״" />
 
       <AddSheet label="הוראת קבע חדשה">
         <StandingForm today={today} />
@@ -29,7 +38,7 @@ export default async function StandingPage() {
               key={s.id}
               icon="repeat"
               title={s.name}
-              subtitle={`כל ${Number(s.start.slice(8, 10))} בחודש${s.end ? ` · עד ${dateLabel(s.end)}` : ""}`}
+              subtitle={`כל ${Number(s.start.slice(8, 10))} בחודש${s.end ? ` עד ${dateLabel(s.end)}` : ""} · ${statusOf(s.id)}`}
               amount={-s.amount}
               amountNote="לחודש"
               action={<DeleteButton id={s.id} />}

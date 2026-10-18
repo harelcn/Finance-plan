@@ -4,6 +4,7 @@ import {
   balanceAt,
   eventsInMonth,
   forecastMonths,
+  overdueEvents,
   planMonth,
   targetFor,
   tracking,
@@ -84,13 +85,52 @@ describe("planMonth", () => {
     expect(p.standingUpcoming).toBe(4_000);
     expect(p.variableRemaining).toBe(0);
   });
-  it("does not re-charge items dated before today (already in Notion expenses)", () => {
+  it("does not re-charge a past charge that is linked to a real expense", () => {
     const p = planMonth(
-      { ...base, standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null }] },
+      {
+        ...base,
+        actuals: { "2026-10": { closings: 0, expenses: 100 } },
+        standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null, payments: [{ date: "2026-10-05", amount: 100 }] }],
+      },
       "2026-10",
     );
     expect(p.upcoming).toHaveLength(0);
     expect(p.expenseTarget).toBe(3_100);
+    // the linked 100 is not variable spending
+    expect(p.variableRecorded).toBe(0);
+    expect(p.variableRemaining).toBe(3_000);
+  });
+  it("keeps a past, unlinked charge as overdue (טרם יצא)", () => {
+    const p = planMonth(
+      { ...base, standing: [{ id: "s", name: "מנוי", amount: 100, start: "2026-06-05", end: null }] },
+      "2026-10",
+    );
+    expect(p.upcoming).toHaveLength(1);
+    expect(p.standingUpcoming).toBe(100);
+  });
+});
+
+describe("linked payments", () => {
+  const planned = (payments: { date: string; amount: number }[]) => ({
+    ...base,
+    planned: [{ id: "w", name: "חתונה", amount: 9_000, date: "2026-09-10", installments: 3, payments }],
+  });
+
+  it("marks installments paid in order", () => {
+    const s = planned([{ date: "2026-09-10", amount: 3_000 }]);
+    expect(overdueEvents(s, base.today)).toHaveLength(1); // Oct 10 installment not linked yet
+    expect(overdueEvents(s, base.today)[0].installment).toEqual({ index: 2, of: 3 });
+    expect(eventsInMonth(s, "2026-11")[0].due).toBe(3_000);
+  });
+  it("a single big payment covers later installments too", () => {
+    const s = planned([{ date: "2026-09-10", amount: 9_000 }]);
+    expect(overdueEvents(s, base.today)).toHaveLength(0);
+    expect(eventsInMonth(s, "2026-11")[0].due).toBe(0);
+    expect(forecastMonths(s).reduce((t, r) => t + r.plannedUpcoming, 0)).toBe(0);
+  });
+  it("overdue charges hit the forecast right away", () => {
+    const s = planned([{ date: "2026-09-10", amount: 3_000 }]);
+    expect(balanceAt(s, "2026-10-19").planned).toBe(3_000);
   });
 });
 

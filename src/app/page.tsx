@@ -2,7 +2,7 @@ import { ForecastChart } from "@/components/ForecastChart";
 import { Amount, Card, MoreLink, QuickAction, Row, RowList, TargetBar } from "@/components/ui";
 import { FORECAST_MONTHS } from "@/lib/config";
 import { dateLabel, dayNum, monthLabel, ymOf, addMonths } from "@/lib/dates";
-import { eventsInMonth, forecastMonths, planMonth } from "@/lib/forecast";
+import { eventsInMonth, forecastMonths, overdueEvents, planMonth } from "@/lib/forecast";
 import { fmt } from "@/lib/format";
 import { loadData } from "@/lib/data";
 
@@ -18,9 +18,10 @@ export default async function Home() {
 
   // charges in the next 30 days
   const horizon = dayNum(today) + 30;
+  const overdue = overdueEvents(input, today);
   const upcoming = [0, 1]
     .flatMap((k) => eventsInMonth(input, addMonths(ymOf(today), k)))
-    .filter((e) => dayNum(e.date) > dayNum(today) && dayNum(e.date) <= horizon);
+    .filter((e) => e.due > 0 && dayNum(e.date) > dayNum(today) && dayNum(e.date) <= horizon);
 
   return (
     <>
@@ -72,6 +73,23 @@ export default async function Home() {
         <ForecastChart rows={rows} start={b.total} compact />
       </Card>
 
+      {/* ───── Overdue: date passed, no linked expense yet ───── */}
+      {overdue.length > 0 && (
+        <Card title="טרם יצאו" aside="התאריך עבר ולא שויכה הוצאה ב-Notion">
+          <RowList>
+            {overdue.map((e, i) => (
+              <Row
+                key={i}
+                icon="clock"
+                title={e.name}
+                subtitle={`היה אמור לצאת ב-${dateLabel(e.date)}${e.installment ? ` · תשלום ${e.installment.index}/${e.installment.of}` : ""}`}
+                amount={-e.due}
+              />
+            ))}
+          </RowList>
+        </Card>
+      )}
+
       {/* ───── Upcoming charges ───── */}
       <Card title="חיובים ב-30 הימים הקרובים">
         <RowList empty="אין חיובים קבועים או מתוכננים בקרוב">
@@ -81,7 +99,7 @@ export default async function Home() {
               icon={e.kind === "standing" ? "repeat" : "calendar"}
               title={e.name}
               subtitle={`${dateLabel(e.date)}${e.installment ? ` · תשלום ${e.installment.index}/${e.installment.of}` : ""}`}
-              amount={-e.amount}
+              amount={-e.due}
             />
           ))}
         </RowList>

@@ -68,9 +68,9 @@ export function DatePicker({ input }: { input: ForecastInput }) {
               <div key={i} className="flex justify-between">
                 <span>
                   {e.name}
-                  {e.installment && ` (${e.installment.index}/${e.installment.of})`} · {dateLabel(e.date)}
+                  {e.installment && ` (${e.installment.index}/${e.installment.of})`} · {e.date <= input.today ? "טרם יצא" : dateLabel(e.date)}
                 </span>
-                <span className="num">{fmt(-e.amount)}</span>
+                <span className="num">{fmt(-e.due)}</span>
               </div>
             ))}
         </div>

@@ -14,7 +14,7 @@ export default async function TargetsPage() {
 
   return (
     <>
-      <PageTitle title="יעדים חודשיים" subtitle="הממוצע שלפיו התחזית מחושבת · הוצאה = שוטף, בלי הוראות קבע" />
+      <PageTitle title="יעדים חודשיים" subtitle="הכנסה = יעד הכנסה (לא רווח) · הוצאה = שוטף בלבד, הוראות קבע והוצאות מתוכננות מתווספות לבד" />
 
       <div className="grid grid-cols-2 gap-3">
         <div className="hero rounded-2xl border border-white/10 p-4 space-y-1">

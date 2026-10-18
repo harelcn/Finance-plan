@@ -44,8 +44,8 @@ export default async function ForecastPage() {
                   {r.standingUpcoming > 0 && <div className="flex justify-between"><span>הוראות קבע</span><span className="num">{fmt(-r.standingUpcoming)}</span></div>}
                   {r.upcoming.filter((e) => e.kind === "planned").map((e, k) => (
                     <div key={k} className="flex justify-between">
-                      <span>{e.name}{e.installment ? ` (${e.installment.index}/${e.installment.of})` : ""}</span>
-                      <span className="num">{fmt(-e.amount)}</span>
+                      <span>{e.name}{e.installment ? ` (${e.installment.index}/${e.installment.of})` : ""}{e.date <= input.today ? " · טרם יצא" : ""}</span>
+                      <span className="num">{fmt(-e.due)}</span>
                     </div>
                   ))}
                 </div>

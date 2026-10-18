@@ -33,6 +33,10 @@ export function targetFor(targets: Target[], kind: TargetKind, ym: string): numb
   return best?.amount ?? 0;
 }
 
+const sumAmounts = (xs: { amount: number }[]) => xs.reduce((s, x) => s + x.amount, 0);
+const sumDue = (xs: ForecastEvent[]) => xs.reduce((s, e) => s + e.due, 0);
+
+/** A standing order's charge in `ym`; linked expenses dated in that month pay it down. */
 function standingEvents(orders: StandingOrder[], ym: string): ForecastEvent[] {
   const out: ForecastEvent[] = [];
   for (const o of orders) {
@@ -40,48 +44,81 @@ function standingEvents(orders: StandingOrder[], ym: string): ForecastEvent[] {
     if (o.end && ymOf(o.end) < ym) continue;
     const date = dateInMonth(ym, Number(o.start.slice(8, 10)));
     if (date < o.start || (o.end && date > o.end)) continue;
-    out.push({ date, name: o.name, amount: o.amount, kind: "standing" });
+    const paid = sumAmounts((o.payments ?? []).filter((p) => ymOf(p.date) === ym));
+    out.push({ itemId: o.id, date, name: o.name, amount: o.amount, due: Math.max(0, o.amount - paid), kind: "standing" });
   }
   return out;
 }
 
-function plannedEvents(items: PlannedExpense[], ym: string): ForecastEvent[] {
+/**
+ * Full installment schedule of a planned expense. Everything linked to it so far is applied
+ * to installments in order, so paying early or in one go both work.
+ */
+export function plannedSchedule(p: PlannedExpense): ForecastEvent[] {
+  const n = Math.max(1, Math.round(p.installments || 1));
+  const per = p.amount / n;
+  let pool = sumAmounts(p.payments ?? []);
+  const first = ymOf(p.date);
   const out: ForecastEvent[] = [];
-  for (const p of items) {
-    const n = Math.max(1, Math.round(p.installments || 1));
-    const first = ymOf(p.date);
-    for (let k = 0; k < n; k++) {
-      if (addMonths(first, k) !== ym) continue;
-      out.push({
-        date: dateInMonth(ym, Number(p.date.slice(8, 10))),
-        name: p.name,
-        amount: p.amount / n,
-        kind: "planned",
-        installment: n > 1 ? { index: k + 1, of: n } : undefined,
-      });
-    }
+  for (let k = 0; k < n; k++) {
+    const covered = Math.min(per, Math.max(0, pool));
+    pool -= covered;
+    out.push({
+      itemId: p.id,
+      date: dateInMonth(addMonths(first, k), Number(p.date.slice(8, 10))),
+      name: p.name,
+      amount: per,
+      due: Math.max(0, per - covered),
+      kind: "planned",
+      installment: n > 1 ? { index: k + 1, of: n } : undefined,
+    });
   }
   return out;
 }
 
-/** Every standing-order charge and planned installment that falls in `ym`. */
+/** Every standing-order charge and planned installment scheduled in `ym`. */
 export function eventsInMonth(s: PlanSettings, ym: string): ForecastEvent[] {
-  return [...standingEvents(s.standing, ym), ...plannedEvents(s.planned, ym)].sort((a, b) =>
-    a.date.localeCompare(b.date),
+  return [
+    ...standingEvents(s.standing, ym),
+    ...s.planned.flatMap(plannedSchedule).filter((e) => ymOf(e.date) === ym),
+  ].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/**
+ * Charges whose date already passed but no linked expense covers them yet ("טרם יצא").
+ * Planned installments from any month; standing orders only for the current month.
+ */
+export function overdueEvents(s: PlanSettings, today: string): ForecastEvent[] {
+  const ym = ymOf(today);
+  return [
+    ...standingEvents(s.standing, ym),
+    ...s.planned.flatMap(plannedSchedule),
+  ]
+    .filter((e) => e.date <= today && e.due > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** Expenses in `ym` that were linked to a plan item (so they are not variable spending). */
+export function linkedInMonth(s: PlanSettings, ym: string): number {
+  return sumAmounts(
+    [...s.planned, ...s.standing].flatMap((i) => i.payments ?? []).filter((p) => ymOf(p.date) === ym),
   );
 }
 
 export interface MonthPlan {
   month: string;
   incomeTarget: number;
-  expenseTarget: number; // variable target + every explicit item in the month
+  variableTarget: number;
+  expenseTarget: number; // variable target + every planned/standing charge scheduled in the month
   recordedClosings: number;
   recordedExpenses: number;
+  /** Recorded expenses that are not linked to any plan item. */
+  variableRecorded: number;
   /** Income still expected after `today` (target minus what is already closed). */
   incomeRemaining: number;
-  /** Variable spending still expected after `today`, on top of the explicit items below. */
+  /** Variable spending still expected after `today` (target minus unlinked spending so far). */
   variableRemaining: number;
-  /** Explicit items dated after `today`. */
+  /** Charges still to go out: future-dated ones, plus overdue ones in the current month. */
   upcoming: ForecastEvent[];
   standingUpcoming: number;
   plannedUpcoming: number;
@@ -93,17 +130,20 @@ export interface MonthPlan {
 /**
  * What is still expected to happen in `ym` after `today`.
  * Anything already recorded in Notion is already inside the current balance, so only the
- * gap to the target (and items not yet charged) is added — nothing is counted twice.
+ * gap to the target (and charges not yet linked to a real expense) is added.
  */
 export function planMonth(input: ForecastInput, ym: string): MonthPlan {
   const today = dayNum(input.today);
+  const isCurrent = ym === ymOf(input.today);
   const events = eventsInMonth(input, ym);
-  const upcoming = events.filter((e) => dayNum(e.date) > today);
+  const upcoming = [
+    ...(isCurrent ? overdueEvents(input, input.today) : []),
+    ...events.filter((e) => e.due > 0 && dayNum(e.date) > today),
+  ];
   const incomeTarget = targetFor(input.targets, "income", ym);
   const variableTarget = targetFor(input.targets, "expense", ym);
-  const expenseTarget = variableTarget + events.reduce((s, e) => s + e.amount, 0);
   const rec = input.actuals[ym] ?? { closings: 0, expenses: 0 };
-  const upcomingTotal = upcoming.reduce((s, e) => s + e.amount, 0);
+  const variableRecorded = Math.max(0, rec.expenses - linkedInMonth(input, ym));
 
   const windowStart = Math.max(today, dayNum(monthStart(ym)) - 1);
   const windowEnd = dayNum(monthEnd(ym));
@@ -112,14 +152,16 @@ export function planMonth(input: ForecastInput, ym: string): MonthPlan {
   return {
     month: ym,
     incomeTarget,
-    expenseTarget,
+    variableTarget,
+    expenseTarget: variableTarget + sumAmounts(events),
     recordedClosings: rec.closings,
     recordedExpenses: rec.expenses,
+    variableRecorded,
     incomeRemaining: open ? Math.max(0, incomeTarget - rec.closings) : 0,
-    variableRemaining: open ? Math.max(0, expenseTarget - rec.expenses - upcomingTotal) : 0,
+    variableRemaining: open ? Math.max(0, variableTarget - variableRecorded) : 0,
     upcoming,
-    standingUpcoming: upcoming.filter((e) => e.kind === "standing").reduce((s, e) => s + e.amount, 0),
-    plannedUpcoming: upcoming.filter((e) => e.kind === "planned").reduce((s, e) => s + e.amount, 0),
+    standingUpcoming: sumDue(upcoming.filter((e) => e.kind === "standing")),
+    plannedUpcoming: sumDue(upcoming.filter((e) => e.kind === "planned")),
     windowStart,
     windowEnd,
   };
@@ -156,7 +198,7 @@ export interface PointForecast {
 
 /**
  * Expected balance at the end of `date`. Monthly targets accrue evenly per day over the
- * open part of each month; standing orders and planned items hit on their exact date.
+ * open part of each month; charges hit on their date (overdue ones right away).
  */
 export function balanceAt(input: ForecastInput, date: string): PointForecast {
   const res: PointForecast = {
@@ -169,7 +211,8 @@ export function balanceAt(input: ForecastInput, date: string): PointForecast {
     events: [],
   };
   const target = dayNum(date);
-  if (target <= dayNum(input.today)) return res;
+  const today = dayNum(input.today);
+  if (target <= today) return res;
 
   for (const ym of monthsBetween(ymOf(input.today), ymOf(date))) {
     const p = planMonth(input, ym);
@@ -180,10 +223,10 @@ export function balanceAt(input: ForecastInput, date: string): PointForecast {
       res.variableExpenses += p.variableRemaining * frac;
     }
     for (const e of p.upcoming) {
-      if (dayNum(e.date) > target) continue;
+      if (Math.max(dayNum(e.date), today + 1) > target) continue;
       res.events.push(e);
-      if (e.kind === "standing") res.standing += e.amount;
-      else res.planned += e.amount;
+      if (e.kind === "standing") res.standing += e.due;
+      else res.planned += e.due;
     }
   }
   res.balance += res.income - res.variableExpenses - res.standing - res.planned;

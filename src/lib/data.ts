@@ -7,7 +7,12 @@ import { getPlan } from "./plan-store";
 /** One Notion round-trip per request, shared by every server component that asks. */
 export const loadData = cache(async () => {
   const today = todayIL();
-  const [actuals, plan] = await Promise.all([getActuals(), getPlan()]);
+  const [actuals, rawPlan] = await Promise.all([getActuals(), getPlan()]);
+
+  // attach the real expenses linked to each plan item ("שיוך לתכנון")
+  const linked = <T extends { id: string }>(item: T) => ({ ...item, payments: actuals.links[item.id] ?? [] });
+  const plan = { ...rawPlan, planned: rawPlan.planned.map(linked), standing: rawPlan.standing.map(linked) };
+
   const input: ForecastInput = {
     ...plan,
     today,
