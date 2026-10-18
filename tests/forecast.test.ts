@@ -134,7 +134,7 @@ describe("balanceAt", () => {
 });
 
 describe("tracking", () => {
-  it("compares target vs actual with a running delta", () => {
+  it("judges income and expenses separately, each with a running delta", () => {
     const rows = tracking(
       {
         ...base,
@@ -145,9 +145,14 @@ describe("tracking", () => {
       },
       "2026-06",
     );
-    expect(rows[0].delta).toBe(2_000);
-    expect(rows[1].delta).toBe(-3_000);
-    expect(rows[1].cumulativeDelta).toBe(-1_000);
+    // income only vs income target — expenses don't touch it
+    expect(rows[0].incomeDelta).toBe(2_000);
+    expect(rows[1].incomeDelta).toBe(-2_000);
+    expect(rows[1].cumulativeIncomeDelta).toBe(0);
+    // expenses vs expense target, positive = under budget
+    expect(rows[0].expenseDelta).toBe(0);
+    expect(rows[1].expenseDelta).toBe(-1_000);
+    expect(rows[1].cumulativeExpenseDelta).toBe(-1_000);
     expect(rows.at(-1)!.month).toBe("2026-10");
   });
 });

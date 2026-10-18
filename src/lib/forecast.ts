@@ -194,36 +194,40 @@ export interface TrackingRow {
   month: string;
   incomeTarget: number;
   closings: number;
+  /** closings − income target (income is judged on its own, not on profit). */
+  incomeDelta: number;
+  cumulativeIncomeDelta: number;
   expenseTarget: number;
   expenses: number;
-  netTarget: number;
-  net: number;
-  delta: number;
-  cumulativeDelta: number;
+  /** expense target − expenses: positive = spent less than planned. */
+  expenseDelta: number;
+  cumulativeExpenseDelta: number;
 }
 
 /** Target vs. actual for every month from `fromYm` through the current month. */
 export function tracking(input: ForecastInput, fromYm: string): TrackingRow[] {
-  let cum = 0;
+  let cumIncome = 0;
+  let cumExpense = 0;
   return monthsBetween(fromYm, ymOf(input.today)).map((ym) => {
     const incomeTarget = targetFor(input.targets, "income", ym);
     const expenseTarget =
       targetFor(input.targets, "expense", ym) +
       eventsInMonth(input, ym).reduce((s, e) => s + e.amount, 0);
     const rec = input.actuals[ym] ?? { closings: 0, expenses: 0 };
-    const netTarget = incomeTarget - expenseTarget;
-    const net = rec.closings - rec.expenses;
-    cum += net - netTarget;
+    const incomeDelta = rec.closings - incomeTarget;
+    const expenseDelta = expenseTarget - rec.expenses;
+    cumIncome += incomeDelta;
+    cumExpense += expenseDelta;
     return {
       month: ym,
       incomeTarget,
       closings: rec.closings,
+      incomeDelta,
+      cumulativeIncomeDelta: cumIncome,
       expenseTarget,
       expenses: rec.expenses,
-      netTarget,
-      net,
-      delta: net - netTarget,
-      cumulativeDelta: cum,
+      expenseDelta,
+      cumulativeExpenseDelta: cumExpense,
     };
   });
 }
