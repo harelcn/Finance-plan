@@ -5,7 +5,15 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "תכנון פיננסי",
   description: "תחזית יתרה, יעדים חודשיים, הוצאות מתוכננות והוראות קבע",
-  icons: { icon: "/icon.png", apple: "/icon.png" },
+  // All icons are generated from public/idon2.png (the app's one icon).
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: { url: "/apple-icon.png", sizes: "180x180" },
+  },
   // "Add to Home Screen" on iPhone opens it full-screen like an app, green under the status bar.
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "תכנון פיננסי" },
 };
