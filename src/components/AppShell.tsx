@@ -111,7 +111,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ))}
       </div>
 
-      {/* white bottom bar: its top edge dips into a smooth notch that cradles the raised purple "+" */}
+      {/* white bottom bar: its top edge slopes down to the "+" button's equator, so the button sits half above the bar */}
       <nav
         className="paper fixed bottom-0 inset-x-0 z-30 pb-[env(safe-area-inset-bottom)]"
         style={{ filter: "drop-shadow(0 -3px 10px rgba(0,0,0,0.10))" }}
@@ -120,7 +120,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="h-16 flex">
             <div className="flex-1 bg-surface" />
             <svg viewBox="0 0 120 64" className="w-[120px] h-16 shrink-0 block" style={{ fill: "rgb(var(--surface))" }}>
-              <path d="M0,0 H14 C23,0 26,4 28,10 A34,34 0 0 0 92,10 C94,4 97,0 106,0 H120 V64 H0 Z" />
+              {/* edges ease down 10px and meet the button's sides at its middle (button r=27 + 4px gap) */}
+              <path d="M0,0 H6 C18,0 21,10 29,10 H91 C99,10 102,0 114,0 H120 V64 H0 Z" />
             </svg>
             <div className="flex-1 bg-surface" />
           </div>
@@ -135,7 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               onClick={() => setAdd((v) => !v)}
               aria-label="הוספה"
-              className={`absolute left-1/2 -translate-x-1/2 -top-[34px] w-[54px] h-[54px] grid place-items-center rounded-full bg-fab text-white shadow-[0_10px_22px_-6px_rgba(90,86,230,0.65)] transition-transform active:scale-95 ${add ? "rotate-45" : ""}`}
+              className={`absolute left-1/2 -translate-x-1/2 -top-[17px] w-[54px] h-[54px] grid place-items-center rounded-full bg-fab text-white shadow-[0_10px_22px_-6px_rgba(90,86,230,0.65)] transition-transform active:scale-95 ${add ? "rotate-45" : ""}`}
             >
               <Icon name="plus" className="w-6 h-6" />
             </button>
