@@ -64,6 +64,9 @@ input, select, textarea { color-scheme: light; }
 .band:nth-of-type(5) { background: rgb(42 131 72); }
 .band:nth-of-type(n + 6) { background: rgb(34 122 76); }
 
+/* Side-by-side summary tiles share one shade (bands would give each its own). */
+.tile { background: rgb(80 160 67); }
+
 /* Balance / summary blocks sit straight on the green, like "יתרת עו״ש". */
 .hero { background: transparent; }
 .hero input { color-scheme: dark; }

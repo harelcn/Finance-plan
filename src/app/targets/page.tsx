@@ -17,11 +17,11 @@ export default async function TargetsPage() {
       <PageTitle title="יעדים חודשיים" />
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="band rounded-3xl p-4 space-y-1">
+        <div className="tile rounded-3xl p-4 space-y-1">
           <p className="text-[11px] text-muted">הכנסה חודשית</p>
           <Amount value={income} size="text-2xl" />
         </div>
-        <div className="band rounded-3xl p-4 space-y-1">
+        <div className="tile rounded-3xl p-4 space-y-1">
           <p className="text-[11px] text-muted">הוצאה חודשית</p>
           <Amount value={expense} size="text-2xl" />
         </div>
