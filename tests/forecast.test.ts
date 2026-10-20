@@ -220,18 +220,29 @@ describe("tracking", () => {
     expect(rows[1].cumulativeExpenseDelta).toBe(-1_000);
     expect(rows.at(-1)!.month).toBe("2026-10");
   });
-  it("running totals are the plain sum of every month, the current one included", () => {
+  it("an open month inside its budget doesn't move the running totals", () => {
     const rows = tracking(
       {
         ...base,
         actuals: {
-          "2026-09": { closings: 10_000, expenses: 3_500 }, // 500 over budget
-          "2026-10": { closings: 4_000, expenses: 2_800 }, // 200 under so far
+          "2026-09": { closings: 10_000, expenses: 3_500 }, // finished: 500 over budget
+          "2026-10": { closings: 4_000, expenses: 2_000 }, // open: under both targets so far
         },
       },
       "2026-09",
     );
-    expect(rows[1].cumulativeExpenseDelta).toBe(-300);
+    expect(rows[0].cumulativeExpenseDelta).toBe(-500);
+    expect(rows[1].expenseDelta).toBe(1_000); // the month itself still shows its own gap
+    expect(rows[1].cumulativeExpenseDelta).toBe(-500); // ...but the running total stays put
+    expect(rows[1].cumulativeIncomeDelta).toBe(0); // not reaching the target yet isn't a miss
+  });
+  it("an open month counts once it is already over budget / over target", () => {
+    const rows = tracking(
+      { ...base, actuals: { "2026-10": { closings: 12_000, expenses: 3_400 } } },
+      "2026-10",
+    );
+    expect(rows[0].cumulativeExpenseDelta).toBe(-400);
+    expect(rows[0].cumulativeIncomeDelta).toBe(2_000);
   });
   it("leaves months without a target out of the running deltas", () => {
     const rows = tracking(
