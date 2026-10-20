@@ -249,16 +249,12 @@ export interface TrackingRow {
 
 /**
  * Target vs. actual for every month from `fromYm` through the current month.
- *
- * Running totals: finished months count in full. The current month is still open, so it only
- * counts what is already final — an expense overrun (can't be un-spent) or an income surplus
- * (can't be un-closed). A month that is still inside its budget doesn't move the running total.
+ * Running totals are the plain sum of every month's gap, the current month included as it stands.
  */
 export function tracking(input: ForecastInput, fromYm: string): TrackingRow[] {
   let cumIncome = 0;
   let cumExpense = 0;
-  const current = ymOf(input.today);
-  return monthsBetween(fromYm, current).map((ym) => {
+  return monthsBetween(fromYm, ymOf(input.today)).map((ym) => {
     const incomeTarget = targetFor(input.targets, "income", ym);
     const variableTarget = targetFor(input.targets, "expense", ym);
     const expenseTarget = variableTarget + eventsInMonth(input, ym).reduce((s, e) => s + e.amount, 0);
@@ -267,9 +263,8 @@ export function tracking(input: ForecastInput, fromYm: string): TrackingRow[] {
     const hasExpenseTarget = variableTarget > 0;
     const incomeDelta = hasIncomeTarget ? rec.closings - incomeTarget : 0;
     const expenseDelta = hasExpenseTarget ? expenseTarget - rec.expenses : 0;
-    const open = ym === current;
-    cumIncome += open ? Math.max(0, incomeDelta) : incomeDelta;
-    cumExpense += open ? Math.min(0, expenseDelta) : expenseDelta;
+    cumIncome += incomeDelta;
+    cumExpense += expenseDelta;
     return {
       month: ym,
       incomeTarget,
