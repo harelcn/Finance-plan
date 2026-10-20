@@ -23,25 +23,34 @@ function Actual({ label, value }: { label: string; value: number }) {
 export default async function TrackingPage() {
   const { input, today } = await loadData();
   const rows = tracking(input, TRACKING_START).reverse();
-  // rows are newest-first: rows[0] is the current month. Every month is its own budget, so the
-  // tiles show this month only (a running total made a within-budget month read as an overrun).
+  // rows are newest-first: rows[0] is the current month
   const now = rows[0];
+  const cumIncome = now?.cumulativeIncomeDelta ?? 0;
+  const cumExpense = now?.cumulativeExpenseDelta ?? 0;
+  const firstMonth = rows.at(-1)?.month ?? `${TRACKING_START}`;
   const missing = rows.some((r) => !r.hasIncomeTarget || !r.hasExpenseTarget);
 
   return (
     <>
       <PageTitle title="יעד מול ביצוע" />
 
+      {/* main number = this month; the running total since the first tracked month sits underneath */}
       <div className="grid grid-cols-2 gap-3">
         <div className="tile rounded-3xl p-4 space-y-1">
           <p className="text-[11px] text-muted">הכנסות · {now ? monthLabel(now.month) : ""}</p>
-          <Amount value={Math.abs(now?.incomeDelta ?? 0)} size="text-2xl" />
+          <Amount value={now?.incomeDelta ?? 0} size="text-2xl" />
           <p className="text-[11px] text-muted">{(now?.incomeDelta ?? 0) >= 0 ? "מעל היעד" : "מתחת ליעד"}</p>
+          <p className="text-[11px] text-faint pt-1 border-t border-ink/10">
+            מצטבר מ{monthLabel(firstMonth)}: {cumIncome >= 0 ? "מעל ב-" : "מתחת ב-"}<span className="num">{fmt(Math.abs(cumIncome))}</span>
+          </p>
         </div>
         <div className="tile rounded-3xl p-4 space-y-1">
           <p className="text-[11px] text-muted">הוצאות · {now ? monthLabel(now.month) : ""}</p>
-          <Amount value={Math.abs(now?.expenseDelta ?? 0)} size="text-2xl" />
+          <Amount value={now?.expenseDelta ?? 0} size="text-2xl" />
           <p className="text-[11px] text-muted">{(now?.expenseDelta ?? 0) >= 0 ? "מתחת ליעד" : "חרגת מהיעד"}</p>
+          <p className="text-[11px] text-faint pt-1 border-t border-ink/10">
+            מצטבר מ{monthLabel(firstMonth)}: {cumExpense >= 0 ? "חיסכון של " : "חריגה של "}<span className="num">{fmt(Math.abs(cumExpense))}</span>
+          </p>
         </div>
       </div>
 
