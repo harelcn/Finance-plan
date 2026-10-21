@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { dateLabel, monthLabel, ymOf } from "@/lib/dates";
 import { fmt } from "@/lib/format";
 import type { ExpenseRow, IncomeRow } from "@/lib/types";
+import { Icon } from "./Icon";
 import { Amount, Card, ProgressBar, Row, RowList } from "./ui";
 
 const ALL = "all";
@@ -46,12 +47,56 @@ function Total({ label, total, count }: { label: string; total: number; count: n
   );
 }
 
+const NO_CATEGORY = "ללא קטגוריה";
+
+/** Category bar with a ⌄ toggle on the right that opens that category's expenses (closed by default). */
+function CategoryItem({ name, amount, total, rows }: { name: string; amount: number; total: number; rows: ExpenseRow[] }) {
+  const [open, setOpen] = useState(false);
+  const pct = total > 0 ? (amount / total) * 100 : 0;
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-2 text-right"
+      >
+        <span className="w-6 h-6 shrink-0 grid place-items-center rounded-full bg-ink/10">
+          <Icon name="chevron" className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? "rotate-90" : "-rotate-90"}`} />
+        </span>
+        <span className="flex-1 min-w-0 space-y-1.5">
+          <span className="flex justify-between text-xs">
+            <span>{name}</span>
+            <span className="num">
+              {fmt(amount)} <span className="text-muted">· {pct.toFixed(0)}%</span>
+            </span>
+          </span>
+          <ProgressBar pct={pct} />
+        </span>
+      </button>
+      {open && (
+        <div className="mt-2 ms-8 rounded-2xl bg-ink/10 px-3 divide-y divide-ink/10">
+          {rows.map((r) => (
+            <div key={r.id} className="flex items-center justify-between gap-3 py-2 text-xs">
+              <span className="min-w-0">
+                <span className="block truncate">{r.name || "ללא שם"}</span>
+                <span className="block text-[11px] text-muted">{dateLabel(r.date)}{r.planned ? " · מתוכנן" : ""}</span>
+              </span>
+              <span className="num shrink-0">{fmt(r.amount)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ExpensesView({ rows, today }: { rows: ExpenseRow[]; today: string }) {
   const { months, month, setMonth, shown } = useMonths(rows, today);
   const total = shown.reduce((s, r) => s + r.amount, 0);
   const byCategory = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of shown) m.set(r.category || "ללא קטגוריה", (m.get(r.category || "ללא קטגוריה") ?? 0) + r.amount);
+    for (const r of shown) m.set(r.category || NO_CATEGORY, (m.get(r.category || NO_CATEGORY) ?? 0) + r.amount);
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [shown]);
 
@@ -64,15 +109,13 @@ export function ExpensesView({ rows, today }: { rows: ExpenseRow[]; today: strin
         <Card title="לפי קטגוריה">
           <div className="space-y-3">
             {byCategory.map(([name, amount]) => (
-              <div key={name} className="space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <span>{name}</span>
-                  <span className="num">
-                    {fmt(amount)} <span className="text-muted">· {total > 0 ? ((amount / total) * 100).toFixed(0) : 0}%</span>
-                  </span>
-                </div>
-                <ProgressBar pct={total > 0 ? (amount / total) * 100 : 0} />
-              </div>
+              <CategoryItem
+                key={name}
+                name={name}
+                amount={amount}
+                total={total}
+                rows={shown.filter((r) => (r.category || NO_CATEGORY) === name)}
+              />
             ))}
           </div>
         </Card>
