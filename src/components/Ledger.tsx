@@ -24,7 +24,7 @@ function MonthChips({ months, month, setMonth }: { months: string[]; month: stri
   const chip = (active: boolean) =>
     `shrink-0 text-xs px-3.5 py-1.5 rounded-full transition ${active ? "bg-brand text-onbrand font-medium" : "bg-ink/10 text-ink hover:bg-ink/20"}`;
   return (
-    <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
       {months.map((m) => (
         <button key={m} onClick={() => setMonth(m)} className={chip(m === month)}>
           {monthLabel(m)}

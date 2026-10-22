@@ -38,7 +38,7 @@ export function DatePicker({ input }: { input: ForecastInput }) {
         </p>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-1">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1">
         {presets.map((p) => (
           <button
             key={p.label}
